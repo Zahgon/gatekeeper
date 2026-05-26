@@ -19,50 +19,33 @@ import (
 	"context"
 	"errors"
 	"flag"
-	"fmt"
-	"reflect"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/open-policy-agent/frameworks/constraint/pkg/apis/templates/v1beta1"
 	constraintclient "github.com/open-policy-agent/frameworks/constraint/pkg/client"
 	"github.com/open-policy-agent/frameworks/constraint/pkg/core/templates"
 	constraintstatusv1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/status/v1beta1"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/config/process"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constraintstatus"
-	celSchema "github.com/open-policy-agent/gatekeeper/v3/pkg/drivers/k8scel/schema"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/drivers/k8scel/transform"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/logging"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/operations"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/readiness"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/watch"
-	errorpkg "github.com/pkg/errors"
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/validation"
-	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
-	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
 const (
@@ -103,39 +86,19 @@ type Adder struct {
 	IfWatching func(schema.GroupVersionKind, func() error) (bool, error)
 }
 
-func (a *Adder) InjectCFClient(c *constraintclient.Client) {
-	a.CFClient = c
-}
+func (a *Adder) InjectCFClient(c *constraintclient.Client) { _ = "STUB: not implemented"; return }
 
-func (a *Adder) InjectWatchManager(w *watch.Manager) {
-	a.WatchManager = w
-}
+func (a *Adder) InjectWatchManager(w *watch.Manager) { _ = "STUB: not implemented"; return }
 
 func (a *Adder) InjectTracker(t *readiness.Tracker) {
-	a.Tracker = t
+	_ = "STUB: not implemented"
+
+	// Add creates a new Constraint Controller and adds it to the Manager. The Manager will set fields on the Controller
+	// and Start it when the Manager is Started.
+	return
 }
 
-// Add creates a new Constraint Controller and adds it to the Manager. The Manager will set fields on the Controller
-// and Start it when the Manager is Started.
-func (a *Adder) Add(mgr manager.Manager) error {
-	if !operations.HasValidationOperations() {
-		return nil
-	}
-	reporter, err := newStatsReporter()
-	if err != nil {
-		log.Error(err, "StatsReporter could not start")
-		return err
-	}
-
-	r := newReconciler(mgr, a.CFClient, reporter, a.ConstraintsCache, a.Tracker)
-	if a.GetPod != nil {
-		r.getPod = a.GetPod
-	}
-	if a.IfWatching != nil {
-		r.ifWatching = a.IfWatching
-	}
-	return add(mgr, r, a.Events)
-}
+func (a *Adder) Add(mgr manager.Manager) error { _ = "STUB: not implemented"; return nil }
 
 type ConstraintsCache struct {
 	mux   sync.RWMutex
@@ -155,62 +118,22 @@ func newReconciler(
 	constraintsCache *ConstraintsCache,
 	tracker *readiness.Tracker,
 ) *ReconcileConstraint {
-	r := &ReconcileConstraint{
-		// Separate reader and writer because manager's default client bypasses the cache for unstructured resources.
-		writer:       mgr.GetClient(),
-		statusClient: mgr.GetClient(),
-		reader:       mgr.GetCache(),
+	_ = "STUB: not implemented"
+	return nil
 
-		scheme:           mgr.GetScheme(),
-		cfClient:         cfClient,
-		log:              log,
-		reporter:         reporter,
-		constraintsCache: constraintsCache,
-		tracker:          tracker,
-	}
-	r.getPod = r.defaultGetPod
-	// default
-	r.ifWatching = func(_ schema.GroupVersionKind, fn func() error) (bool, error) { return true, fn() }
-	return r
+	// Separate reader and writer because manager's default client bypasses the cache for unstructured resources.
 }
+
+// default
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler.
 func add(mgr manager.Manager, r reconcile.Reconciler, events <-chan event.GenericEvent) error {
+	_ = "STUB: not implemented"
 	// Create a new controller
-	c, err := controller.New("constraint-controller", mgr, controller.Options{Reconciler: r})
-	if err != nil {
-		return err
-	}
-
-	// Watch for changes to the provided constraint
-	err = c.Watch(
-		source.Channel(
-			events,
-			handler.EnqueueRequestsFromMapFunc(util.EventPackerMapFunc())))
-	if err != nil {
-		return err
-	}
-
-	err = c.Watch(
-		source.Kind(mgr.GetCache(), &constraintstatusv1beta1.ConstraintPodStatus{}, handler.TypedEnqueueRequestsFromMapFunc(constraintstatus.PodStatusToConstraintMapper(true, util.EventPackerMapFunc()))))
-	if err != nil {
-		return err
-	}
-
-	isVapAPIEnabled, groupVersion := transform.IsVapAPIEnabled(&log)
-	if isVapAPIEnabled && operations.IsAssigned(operations.Generate) {
-		obj, err := vapBindingForVersion(*groupVersion)
-		if err != nil {
-			return err
-		}
-		if err = c.Watch(source.Kind(mgr.GetCache(), obj, handler.TypedEnqueueRequestsFromMapFunc(func(ctx context.Context, obj client.Object) []reconcile.Request {
-			return eventPackerMapFuncFromOwnerRefs()(ctx, obj)
-		}))); err != nil {
-			return err
-		}
-	}
 	return nil
 }
+
+// Watch for changes to the provided constraint
 
 var _ reconcile.Reconciler = &ReconcileConstraint{}
 
@@ -239,718 +162,168 @@ type ReconcileConstraint struct {
 // Reconcile reads that state of the cluster for a constraint object and makes changes based on the state read
 // and what is in the constraint.Spec.
 func (r *ReconcileConstraint) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
-	gvk, unpackedRequest, err := util.UnpackRequest(request)
-	if err != nil {
-		// Unrecoverable, do not retry.
-		// TODO(OREN) add metric
-		log.Error(err, "unpacking request", "request", request)
-		return reconcile.Result{}, nil
-	}
-
-	// Sanity - make sure it is a constraint resource.
-	if gvk.Group != constraintstatusv1beta1.ConstraintsGroup {
-		// Unrecoverable, do not retry.
-		log.Error(err, "invalid constraint GroupVersion", "gvk", gvk)
-		return reconcile.Result{}, nil
-	}
-
-	deleted := false
-	instance := &unstructured.Unstructured{}
-	instance.SetGroupVersionKind(gvk)
-	executed, err := r.ifWatching(gvk, func() error {
-		return r.reader.Get(ctx, unpackedRequest.NamespacedName, instance)
-	})
-
-	// if we executed a get, we can infer deletion status from the object,
-	// otherwise we must assume the object has been deleted, since we are no longer
-	// watching the object (which only happens if the constraint template has been deleted)
-	if (executed && err != nil) || !executed {
-		if err != nil && !apierrors.IsNotFound(err) && !meta.IsNoMatchError(err) {
-			return reconcile.Result{}, err
-		}
-		deleted = true
-		instance = &unstructured.Unstructured{}
-		instance.SetGroupVersionKind(gvk)
-		instance.SetNamespace(unpackedRequest.Namespace)
-		instance.SetName(unpackedRequest.Name)
-	}
-
-	deleted = deleted || !instance.GetDeletionTimestamp().IsZero()
-
-	constraintKey := strings.Join([]string{instance.GetKind(), instance.GetName()}, "/")
-	enforcementAction, err := util.GetEnforcementAction(instance.Object)
-	if err != nil {
-		return reconcile.Result{}, err
-	}
-
-	reportMetrics := false
-	defer func() {
-		if reportMetrics {
-			r.constraintsCache.reportTotalConstraints(ctx, r.reporter)
-		}
-	}()
-
-	if !deleted {
-		r.log.Info("handling constraint update", "instance", instance)
-		status, err := r.getOrCreatePodStatus(ctx, instance)
-		if err != nil {
-			log.Info("could not get/create pod status object", "error", err)
-			return reconcile.Result{}, err
-		}
-		status.Status.ConstraintUID = instance.GetUID()
-		status.Status.ObservedGeneration = instance.GetGeneration()
-		status.Status.Errors = nil
-
-		if c, err := r.cfClient.GetConstraint(instance); err != nil || !reflect.DeepEqual(instance, c) {
-			err := util.ValidateEnforcementAction(enforcementAction, instance.Object)
-			if err != nil {
-				return reconcile.Result{}, r.reportErrorOnConstraintStatus(ctx, status, err, "could not validate enforcement actions")
-			}
-
-			if err := r.cacheConstraint(ctx, instance); err != nil {
-				r.constraintsCache.addConstraintKey(constraintKey, tags{
-					enforcementAction: enforcementAction,
-					status:            metrics.ErrorStatus,
-				})
-				reportMetrics = true
-				return reconcile.Result{}, r.reportErrorOnConstraintStatus(ctx, status, err, "could not cache constraint")
-			}
-			logAddition(r.log, instance, enforcementAction)
-		}
-
-		status.Status.Enforced = true
-		if err = r.writer.Update(ctx, status); err != nil {
-			return reconcile.Result{Requeue: true}, nil
-		}
-
-		// adding constraint to cache and sending metrics
-		r.constraintsCache.addConstraintKey(constraintKey, tags{
-			enforcementAction: enforcementAction,
-			status:            metrics.ActiveStatus,
-		})
-		reportMetrics = true
-		requeueAfter, err := r.manageVAPB(ctx, enforcementAction, instance, status)
-		if err != nil {
-			return reconcile.Result{RequeueAfter: requeueAfter}, err
-		}
-		if requeueAfter != time.Duration(0) {
-			log.Info("requeueing after", "requeueAfter", requeueAfter)
-			return reconcile.Result{RequeueAfter: requeueAfter}, nil
-		}
-	} else {
-		r.log.Info("handling constraint delete", "instance", instance)
-		r.reporter.DeleteVAPBStatus(types.NamespacedName{Name: transform.GetVAPBindingName(instance.GetKind(), instance.GetName())})
-		r.reporter.DeleteVAPBStatus(types.NamespacedName{Name: transform.LegacyVAPBindingName(instance.GetName())})
-		if _, err := r.cfClient.RemoveConstraint(ctx, instance); err != nil {
-			if errors.Is(err, constraintclient.ErrMissingConstraint) {
-				return reconcile.Result{}, err
-			}
-		}
-		logRemoval(r.log, instance, enforcementAction)
-
-		// cancel expectations
-		t := r.tracker.For(instance.GroupVersionKind())
-		t.CancelExpect(instance)
-
-		r.constraintsCache.deleteConstraintKey(constraintKey)
-		reportMetrics = true
-
-		sName, err := constraintstatusv1beta1.KeyForConstraint(util.GetPodName(), instance)
-		if err != nil {
-			return reconcile.Result{}, err
-		}
-		statusObj := &constraintstatusv1beta1.ConstraintPodStatus{}
-		statusObj.SetName(sName)
-		statusObj.SetNamespace(util.GetNamespace())
-		if err := r.writer.Delete(ctx, statusObj); err != nil {
-			if !apierrors.IsNotFound(err) {
-				return reconcile.Result{}, err
-			}
-		}
-		isAPIEnabled, groupVersion := transform.IsVapAPIEnabled(&log)
-		if isAPIEnabled {
-			shouldGenerateVAPB, _, err := shouldGenerateVAPB(*DefaultGenerateVAPB, enforcementAction, instance)
-			if err != nil {
-				return reconcile.Result{}, err
-			}
-			if shouldGenerateVAPB {
-				ct := &v1beta1.ConstraintTemplate{}
-				err = r.reader.Get(ctx, types.NamespacedName{Name: strings.ToLower(instance.GetKind())}, ct)
-				if err != nil {
-					if apierrors.IsNotFound(err) {
-						return reconcile.Result{}, nil
-					}
-					return reconcile.Result{}, err
-				}
-				unversionedCT := &templates.ConstraintTemplate{}
-				if err := r.scheme.Convert(ct, unversionedCT, nil); err != nil {
-					return reconcile.Result{}, err
-				}
-				hasVAP, err := ShouldGenerateVAP(unversionedCT)
-				if err != nil {
-					if errors.Is(err, celSchema.ErrCELEngineMissing) {
-						return reconcile.Result{}, nil
-					}
-					return reconcile.Result{}, err
-				}
-				if hasVAP {
-					// Delete new-format VAPB (gatekeeper-<kind>-<name>).
-					vapBindingName := transform.GetVAPBindingName(instance.GetKind(), instance.GetName())
-					newVapBinding, err := vapBindingForVersion(*groupVersion)
-					if err != nil {
-						return reconcile.Result{}, err
-					}
-					newVapBinding.SetName(vapBindingName)
-					if err := r.reader.Get(ctx, types.NamespacedName{Name: vapBindingName}, newVapBinding); err != nil {
-						if !apierrors.IsNotFound(err) {
-							return reconcile.Result{}, err
-						}
-					} else {
-						if err := r.deleteVAPBIfOwned(ctx, newVapBinding, instance, vapBindingName); err != nil {
-							return reconcile.Result{}, err
-						}
-					}
-					// Migration: also delete legacy VAPB (gatekeeper-<name>).
-					if err := r.cleanupLegacyVAPB(ctx, instance, groupVersion); err != nil {
-						return reconcile.Result{}, err
-					}
-				}
-			}
-		}
-	}
-	return reconcile.Result{}, nil
+	_ = "STUB: not implemented"
+	return *new(reconcile.Result), nil
 }
 
+// Unrecoverable, do not retry.
+// TODO(OREN) add metric
+
+// Sanity - make sure it is a constraint resource.
+
+// Unrecoverable, do not retry.
+
+// if we executed a get, we can infer deletion status from the object,
+// otherwise we must assume the object has been deleted, since we are no longer
+// watching the object (which only happens if the constraint template has been deleted)
+
+// adding constraint to cache and sending metrics
+
+// cancel expectations
+
+// Delete new-format VAPB (gatekeeper-<kind>-<name>).
+
+// Migration: also delete legacy VAPB (gatekeeper-<name>).
+
 func shouldGenerateVAPB(defaultGenerateVAPB bool, enforcementAction util.EnforcementAction, instance *unstructured.Unstructured) (bool, []string, error) {
-	var VAPEnforcementActions []string
-	var err error
-	switch enforcementAction {
-	case util.Scoped:
-		VAPEnforcementActions, err = util.ScopedActionForEP(util.VAPEnforcementPoint, instance)
-	default:
-		if defaultGenerateVAPB {
-			VAPEnforcementActions = []string{string(enforcementAction)}
-		}
-	}
-	return len(VAPEnforcementActions) != 0, VAPEnforcementActions, err
+	_ = "STUB: not implemented"
+	return false, nil, nil
 }
 
 func (r *ReconcileConstraint) defaultGetPod(_ context.Context) (*corev1.Pod, error) {
+	_ = "STUB: not implemented"
 	// require injection of GetPod in order to control what client we use to
 	// guarantee we don't inadvertently create a watch
-	panic("GetPod must be injected to ReconcileConstraint")
+	return nil, nil
 }
 
 func (r *ReconcileConstraint) getOrCreatePodStatus(ctx context.Context, constraint *unstructured.Unstructured) (*constraintstatusv1beta1.ConstraintPodStatus, error) {
-	statusObj := &constraintstatusv1beta1.ConstraintPodStatus{}
-	sName, err := constraintstatusv1beta1.KeyForConstraint(util.GetPodName(), constraint)
-	if err != nil {
-		return nil, err
-	}
-	key := types.NamespacedName{Name: sName, Namespace: util.GetNamespace()}
-	if err := r.reader.Get(ctx, key, statusObj); err != nil {
-		if !apierrors.IsNotFound(err) {
-			return nil, err
-		}
-	} else {
-		return statusObj, nil
-	}
-	pod, err := r.getPod(ctx)
-	if err != nil {
-		return nil, err
-	}
-	statusObj, err = constraintstatusv1beta1.NewConstraintStatusForPod(pod, constraint, r.scheme)
-	if err != nil {
-		return nil, err
-	}
-	if err := r.writer.Create(ctx, statusObj); err != nil {
-		return nil, err
-	}
-	return statusObj, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func ShouldGenerateVAP(ct *templates.ConstraintTemplate) (bool, error) {
-	source, err := celSchema.GetSourceFromTemplate(ct)
-	if err != nil {
-		return false, err
-	}
-	if source.GenerateVAP == nil {
-		return *DefaultGenerateVAP, nil
-	}
-	return *source.GenerateVAP, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 func logAddition(l logr.Logger, constraint *unstructured.Unstructured, enforcementAction util.EnforcementAction) {
-	l.Info(
-		"constraint added to OPA",
-		logging.EventType, "constraint_added",
-		logging.Semantic, true,
-		logging.ConstraintGroup, constraint.GroupVersionKind().Group,
-		logging.ConstraintAPIVersion, constraint.GroupVersionKind().Version,
-		logging.ConstraintKind, constraint.GetKind(),
-		logging.ConstraintName, constraint.GetName(),
-		logging.ConstraintAction, string(enforcementAction),
-		logging.ConstraintStatus, "enforced",
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func logRemoval(l logr.Logger, constraint *unstructured.Unstructured, enforcementAction util.EnforcementAction) {
-	l.Info(
-		"constraint removed from OPA",
-		logging.EventType, "constraint_removed",
-		logging.Semantic, true,
-		logging.ConstraintGroup, constraint.GroupVersionKind().Group,
-		logging.ConstraintAPIVersion, constraint.GroupVersionKind().Version,
-		logging.ConstraintKind, constraint.GetKind(),
-		logging.ConstraintName, constraint.GetName(),
-		logging.ConstraintAction, string(enforcementAction),
-		logging.ConstraintStatus, "unenforced",
-	)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (r *ReconcileConstraint) cacheConstraint(ctx context.Context, instance *unstructured.Unstructured) error {
-	t := r.tracker.For(instance.GroupVersionKind())
-
-	obj := instance.DeepCopy()
-	// Remove the status field since we do not need it
-	unstructured.RemoveNestedField(obj.Object, "status")
-	_, err := r.cfClient.AddConstraint(ctx, obj)
-	if err != nil {
-		t.TryCancelExpect(obj)
-		return err
-	}
-
-	// Track for readiness
-	t.Observe(instance)
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// Remove the status field since we do not need it
+
+// Track for readiness
+
 func (r *ReconcileConstraint) reportErrorOnConstraintStatus(ctx context.Context, status *constraintstatusv1beta1.ConstraintPodStatus, err error, message string) error {
-	status.Status.Errors = append(status.Status.Errors, constraintstatusv1beta1.Error{Message: fmt.Sprintf("%s: %s", message, err)})
-	if err2 := r.writer.Update(ctx, status); err2 != nil {
-		log.Error(err2, message, "error", "could not update constraint status")
-		return errorpkg.Wrapf(err, "%s", fmt.Sprintf("%s, could not update constraint status: %s", message, err2))
-	}
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (r *ReconcileConstraint) manageVAPB(ctx context.Context, enforcementAction util.EnforcementAction, instance *unstructured.Unstructured, status *constraintstatusv1beta1.ConstraintPodStatus) (time.Duration, error) {
-	noDelay := time.Duration(0)
-	vapBindingKey := types.NamespacedName{Name: transform.GetVAPBindingName(instance.GetKind(), instance.GetName())}
-	if !operations.IsAssigned(operations.Generate) {
-		log.Info("generate operation is not assigned, ValidatingAdmissionPolicyBinding resource will not be generated", "constraintName", instance.GetName(), "constraintKind", instance.GetKind())
-		r.reporter.DeleteVAPBStatus(vapBindingKey)
-		return noDelay, nil
-	}
-	ct := &v1beta1.ConstraintTemplate{}
-	err := r.reader.Get(ctx, types.NamespacedName{Name: strings.ToLower(instance.GetKind())}, ct)
-	if err != nil {
-		return noDelay, err
-	}
-
-	shouldGenerateVAPB, VAPEnforcementActions, err := shouldGenerateVAPB(*DefaultGenerateVAPB, enforcementAction, instance)
-	if err != nil {
-		log.Error(err, "could not determine if ValidatingAdmissionPolicyBinding should be generated")
-		return noDelay, r.reportErrorOnConstraintStatus(ctx, status, err, "could not determine if ValidatingAdmissionPolicyBinding should be generated")
-	}
-	intendsVAPB := shouldGenerateVAPB
-
-	isAPIEnabled, groupVersion := transform.IsVapAPIEnabled(&log)
-	generationPathSetStatus := false
-	if shouldGenerateVAPB {
-		if !isAPIEnabled {
-			log.Error(ErrValidatingAdmissionPolicyAPIDisabled, "Cannot generate ValidatingAdmissionPolicyBinding", "constraint", instance.GetName())
-			r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-			status.Status.Errors = append(status.Status.Errors, constraintstatusv1beta1.Error{Message: fmt.Sprintf("cannot generate ValidatingAdmissionPolicyBinding: %s", ErrValidatingAdmissionPolicyAPIDisabled)})
-			shouldGenerateVAPB = false
-		} else {
-			unversionedCT := &templates.ConstraintTemplate{}
-			if err := r.scheme.Convert(ct, unversionedCT, nil); err != nil {
-				r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-				return noDelay, r.reportErrorOnConstraintStatus(ctx, status, err, "could not convert ConstraintTemplate to unversioned")
-			}
-			hasVAP, err := ShouldGenerateVAP(unversionedCT)
-			switch {
-			case errors.Is(err, celSchema.ErrCELEngineMissing):
-				updateEnforcementPointStatus(status, util.VAPEnforcementPoint, ErrGenerateVAPBState, err.Error(), instance.GetGeneration())
-				r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-				generationPathSetStatus = true
-				shouldGenerateVAPB = false
-			case err != nil:
-				log.Error(err, "could not determine if ConstraintTemplate is configured to generate ValidatingAdmissionPolicy", "constraint", instance.GetName(), "constraint_template", unversionedCT.GetName())
-				r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-				status.Status.Errors = append(status.Status.Errors, constraintstatusv1beta1.Error{Message: fmt.Sprintf("could not determine if ConstraintTemplate is configured to generate ValidatingAdmissionPolicy: %s", err)})
-				shouldGenerateVAPB = false
-			case !hasVAP:
-				log.Error(ErrVAPConditionsNotSatisfied, "Cannot generate ValidatingAdmissionPolicyBinding", "constraint", instance.GetName(), "constraint_template", unversionedCT.GetName())
-				r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-				status.Status.Errors = append(status.Status.Errors, constraintstatusv1beta1.Error{Message: fmt.Sprintf("cannot generate ValidatingAdmissionPolicyBinding: %s", ErrVAPConditionsNotSatisfied)})
-				shouldGenerateVAPB = false
-			default:
-				// reconcile for vapb generation if annotation is not set
-				if ct.Annotations == nil || (ct.Annotations[BlockVAPBGenerationUntilAnnotation] == "" && ct.Annotations[VAPBGenerationAnnotation] != "unblocked") {
-					return noDelay, r.reportErrorOnConstraintStatus(ctx, status, errors.New("annotation to wait for ValidatingAdmissionPolicyBinding generation not found"), "could not find annotation to wait for ValidatingAdmissionPolicyBinding generation")
-				}
-
-				if ct.Annotations[VAPBGenerationAnnotation] == "" || ct.Annotations[VAPBGenerationAnnotation] == VAPBGenerationBlocked {
-					// waiting for sometime before generating vapbinding, gives api-server time to cache CRDs
-					timestamp := ct.Annotations[BlockVAPBGenerationUntilAnnotation]
-					t, err := time.Parse(time.RFC3339, timestamp)
-					if err != nil {
-						r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-						return noDelay, r.reportErrorOnConstraintStatus(ctx, status, err, "could not parse timestamp")
-					}
-					if t.After(time.Now()) {
-						wait := time.Until(t)
-						updateEnforcementPointStatus(status, util.VAPEnforcementPoint, WaitVAPBState, fmt.Sprintf("waiting for %s before generating ValidatingAdmissionPolicyBinding to make sure api-server has cached constraint CRD", wait), instance.GetGeneration())
-						return wait, r.writer.Update(ctx, status)
-					}
-				}
-			}
-		}
-	}
-
-	r.log.Info("constraint controller", "generateVAPB", shouldGenerateVAPB, "constraintName", instance.GetName(), "constraintKind", instance.GetKind())
-	// generate vapbinding resources
-	if shouldGenerateVAPB && groupVersion != nil {
-		currentVapBinding, err := vapBindingForVersion(*groupVersion)
-		if err != nil {
-			r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-			return noDelay, r.reportErrorOnConstraintStatus(ctx, status, err, "could not get ValidatingAdmissionPolicyBinding API version")
-		}
-		vapBindingName := transform.GetVAPBindingName(instance.GetKind(), instance.GetName())
-		log.Info("check if vapbinding exists", "vapBindingName", vapBindingName)
-		if err := r.reader.Get(ctx, types.NamespacedName{Name: vapBindingName}, currentVapBinding); err != nil {
-			if !apierrors.IsNotFound(err) {
-				r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-				return noDelay, r.reportErrorOnConstraintStatus(ctx, status, err, "could not get ValidatingAdmissionPolicyBinding")
-			}
-			currentVapBinding = nil
-		}
-		transformedVapBinding, err := transform.ConstraintToBinding(instance, VAPEnforcementActions)
-		if err != nil {
-			r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-			return noDelay, r.reportErrorOnConstraintStatus(ctx, status, err, "could not transform constraint to ValidatingAdmissionPolicyBinding")
-		}
-
-		newVapBinding, err := getRunTimeVAPBinding(groupVersion, transformedVapBinding, currentVapBinding)
-		if err != nil {
-			r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-			return noDelay, r.reportErrorOnConstraintStatus(ctx, status, err, "could not get ValidatingAdmissionPolicyBinding object with runtime group version")
-		}
-
-		if err := controllerutil.SetControllerReference(instance, newVapBinding, r.scheme); err != nil {
-			r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-			return noDelay, err
-		}
-
-		if currentVapBinding == nil {
-			log.Info("creating vapbinding", "vapBindingName", vapBindingName, "constraintName", instance.GetName(), "constraintKind", instance.GetKind())
-			if err := r.writer.Create(ctx, newVapBinding); err != nil {
-				r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-				return noDelay, r.reportErrorOnConstraintStatus(ctx, status, err, fmt.Sprintf("could not create ValidatingAdmissionPolicyBinding: %s", vapBindingName))
-			}
-		} else if !reflect.DeepEqual(currentVapBinding, newVapBinding) {
-			log.Info("updating vapbinding", "vapBindingName", vapBindingName, "constraintName", instance.GetName(), "constraintKind", instance.GetKind())
-			if err := r.writer.Update(ctx, newVapBinding); err != nil {
-				r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-				return noDelay, r.reportErrorOnConstraintStatus(ctx, status, err, fmt.Sprintf("could not update ValidatingAdmissionPolicyBinding: %s", vapBindingName))
-			}
-		}
-		updateEnforcementPointStatus(status, util.VAPEnforcementPoint, GeneratedVAPBState, "", instance.GetGeneration())
-		r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusActive)
-
-		// Migration cleanup is best-effort during normal reconcile. Failures here
-		// should not block VAPB create or update.
-		_ = r.cleanupLegacyVAPB(ctx, instance, groupVersion)
-	}
-	// do not generate vapbinding resources
-	// remove if exists
-	if !shouldGenerateVAPB && groupVersion != nil {
-		currentVapBinding, err := vapBindingForVersion(*groupVersion)
-		if err != nil {
-			r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-			return noDelay, r.reportErrorOnConstraintStatus(ctx, status, err, "could not get ValidatingAdmissionPolicyBinding API version")
-		}
-		vapBindingName := transform.GetVAPBindingName(instance.GetKind(), instance.GetName())
-		log.Info("check if vapbinding exists", "vapBindingName", vapBindingName)
-		if err := r.reader.Get(ctx, types.NamespacedName{Name: vapBindingName}, currentVapBinding); err != nil {
-			if !apierrors.IsNotFound(err) && !errors.As(err, &discoveryErr) && !meta.IsNoMatchError(err) {
-				r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-				return noDelay, err
-			}
-			currentVapBinding = nil
-		}
-		if currentVapBinding != nil {
-			if err := r.deleteVAPBIfOwned(ctx, currentVapBinding, instance, vapBindingName); err != nil {
-				r.reporter.ReportVAPBStatus(vapBindingKey, metrics.VAPStatusError)
-				return noDelay, r.reportErrorOnConstraintStatus(ctx, status, err, fmt.Sprintf("could not delete ValidatingAdmissionPolicyBinding: %s", vapBindingName))
-			}
-		}
-
-		// Clean stale enforcement point status unless it was set
-		// by the generation path in this reconcile.
-		if !generationPathSetStatus {
-			cleanEnforcementPointStatus(status, util.VAPEnforcementPoint)
-		}
-
-		// Migration cleanup is best-effort during normal reconcile. Failures here
-		// should not block VAPB delete or status cleanup.
-		_ = r.cleanupLegacyVAPB(ctx, instance, groupVersion)
-
-		if !intendsVAPB {
-			r.reporter.DeleteVAPBStatus(vapBindingKey)
-		}
-	}
-	return noDelay, r.writer.Update(ctx, status)
+	_ = "STUB: not implemented"
+	return *new(time.Duration), nil
 }
 
-func (r *ReconcileConstraint) deleteVAPBIfOwned(ctx context.Context, vapBinding client.Object, instance *unstructured.Unstructured, vapBindingName string) error {
-	if !vapBindingControlledByConstraint(vapBinding, instance) {
-		log.Info("vapbinding exists but is not owned by this constraint, skipping delete", "vapBindingName", vapBindingName, "constraintName", instance.GetName(), "constraintKind", instance.GetKind())
-		return nil
-	}
+// reconcile for vapb generation if annotation is not set
 
-	log.Info("deleting vapbinding", "vapBindingName", vapBindingName)
-	if err := r.writer.Delete(ctx, vapBinding); err != nil {
-		if apierrors.IsNotFound(err) {
-			log.Info("vapbinding already deleted", "vapBindingName", vapBindingName)
-			return nil
-		}
-		return err
-	}
+// waiting for sometime before generating vapbinding, gives api-server time to cache CRDs
+
+// generate vapbinding resources
+
+// Migration cleanup is best-effort during normal reconcile. Failures here
+// should not block VAPB create or update.
+
+// do not generate vapbinding resources
+// remove if exists
+
+// Clean stale enforcement point status unless it was set
+// by the generation path in this reconcile.
+
+// Migration cleanup is best-effort during normal reconcile. Failures here
+// should not block VAPB delete or status cleanup.
+
+func (r *ReconcileConstraint) deleteVAPBIfOwned(ctx context.Context, vapBinding client.Object, instance *unstructured.Unstructured, vapBindingName string) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func NewConstraintsCache() *ConstraintsCache {
-	return &ConstraintsCache{
-		cache: make(map[string]tags),
-	}
-}
+func NewConstraintsCache() *ConstraintsCache { _ = "STUB: not implemented"; return nil }
 
 func (c *ConstraintsCache) addConstraintKey(constraintKey string, t tags) {
-	c.mux.Lock()
-	defer c.mux.Unlock()
-
-	c.cache[constraintKey] = tags{
-		enforcementAction: t.enforcementAction,
-		status:            t.status,
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (c *ConstraintsCache) deleteConstraintKey(constraintKey string) {
-	c.mux.Lock()
-	defer c.mux.Unlock()
-
-	delete(c.cache, constraintKey)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (c *ConstraintsCache) reportTotalConstraints(ctx context.Context, reporter StatsReporter) {
-	c.mux.RLock()
-	defer c.mux.RUnlock()
-
-	totals := make(map[tags]int)
-	// report total number of constraints
-	for _, v := range c.cache {
-		totals[v]++
-	}
-
-	for _, enforcementAction := range util.KnownEnforcementActions {
-		for _, status := range metrics.AllStatuses {
-			t := tags{
-				enforcementAction: enforcementAction,
-				status:            status,
-			}
-			if err := reporter.reportConstraints(ctx, t, int64(totals[t])); err != nil {
-				log.Error(err, "failed to report total constraints")
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// report total number of constraints
 
 // TODO(v3.25.0): Remove this function and all call sites once users have had
 // releases to upgrade (introduced in v3.23.0).
 func (r *ReconcileConstraint) cleanupLegacyVAPB(ctx context.Context, instance *unstructured.Unstructured, groupVersion *schema.GroupVersion) error {
-	if groupVersion == nil {
-		return nil
-	}
-	oldName := transform.LegacyVAPBindingName(instance.GetName())
-	newName := transform.GetVAPBindingName(instance.GetKind(), instance.GetName())
-	if oldName == newName || len(oldName) > validation.DNS1123SubdomainMaxLength {
-		return nil
-	}
-	legacyBinding, err := vapBindingForVersion(*groupVersion)
-	if err != nil {
-		log.Error(err, "could not get legacy VAPB API version", "legacyVAPBName", oldName)
-		return err
-	}
-	if err := r.reader.Get(ctx, types.NamespacedName{Name: oldName}, legacyBinding); err != nil {
-		if !apierrors.IsNotFound(err) {
-			log.Error(err, "failed to get legacy vapbinding", "legacyVAPBName", oldName)
-			return err
-		}
-		return nil
-	}
-	if !vapBindingControlledByConstraint(legacyBinding, instance) {
-		log.Info("legacy vapbinding exists but is not owned by this constraint, skipping cleanup", "legacyVAPBName", oldName, "constraintName", instance.GetName(), "constraintKind", instance.GetKind())
-		return nil
-	}
-	log.Info("cleaning up legacy vapbinding", "legacyVAPBName", oldName, "newVAPBName", newName)
-	if err := r.writer.Delete(ctx, legacyBinding); err != nil && !apierrors.IsNotFound(err) {
-		log.Error(err, "failed to delete legacy vapbinding", "legacyVAPBName", oldName)
-		return err
-	}
-	r.reporter.DeleteVAPBStatus(types.NamespacedName{Name: oldName})
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func vapBindingControlledByConstraint(binding metav1.Object, instance *unstructured.Unstructured) bool {
-	if instance.GetUID() != "" {
-		return metav1.IsControlledBy(binding, instance)
-	}
-
-	ownerRef := metav1.GetControllerOfNoCopy(binding)
-	if ownerRef == nil {
-		return false
-	}
-
-	ownerGV, err := schema.ParseGroupVersion(ownerRef.APIVersion)
-	if err != nil {
-		// This path is only a best-effort fallback for synthetic delete reconciles
-		// where the constraint UID is unavailable. If the controller ownerRef is
-		// malformed, skip cleanup rather than failing reconcile or risking deletion
-		// of a VAPB we cannot confidently attribute to this constraint.
-		log.Error(err, "failed to parse controller owner APIVersion for legacy vapbinding, skipping cleanup fallback",
-			"ownerAPIVersion", ownerRef.APIVersion,
-			"ownerKind", ownerRef.Kind,
-			"ownerName", ownerRef.Name,
-			"constraint", instance.GetName(),
-			"constraintKind", instance.GetKind(),
-		)
-		return false
-	}
-
-	gvk := instance.GroupVersionKind()
-	return ownerGV.Group == gvk.Group && ownerRef.Kind == gvk.Kind && ownerRef.Name == instance.GetName()
+	_ = "STUB: not implemented"
+	return false
 }
 
+// This path is only a best-effort fallback for synthetic delete reconciles
+// where the constraint UID is unavailable. If the controller ownerRef is
+// malformed, skip cleanup rather than failing reconcile or risking deletion
+// of a VAPB we cannot confidently attribute to this constraint.
+
 func vapBindingForVersion(gvk schema.GroupVersion) (client.Object, error) {
-	switch gvk.Version {
-	case "v1":
-		return &admissionregistrationv1.ValidatingAdmissionPolicyBinding{}, nil
-	case "v1beta1":
-		return &admissionregistrationv1beta1.ValidatingAdmissionPolicyBinding{}, nil
-	default:
-		return nil, errors.New("unrecognized version")
-	}
+	_ = "STUB: not implemented"
+	return *new(client.Object), nil
 }
 
 func getRunTimeVAPBinding(gvk *schema.GroupVersion, transformedVapBinding *admissionregistrationv1beta1.ValidatingAdmissionPolicyBinding, currentVapBinding client.Object) (client.Object, error) {
-	if currentVapBinding == nil {
-		if gvk.Version == "v1" {
-			return v1beta1ToV1(transformedVapBinding)
-		}
-		return transformedVapBinding.DeepCopy(), nil
-	}
-	if gvk.Version == "v1" {
-		v1CurrentVAPBinding, ok := currentVapBinding.(*admissionregistrationv1.ValidatingAdmissionPolicyBinding)
-		if !ok {
-			return nil, errors.New("unable to convert to v1 VAP")
-		}
-		v1CurrentVAPBinding = v1CurrentVAPBinding.DeepCopy()
-		tempVAPBinding, err := v1beta1ToV1(transformedVapBinding)
-		if err != nil {
-			return nil, err
-		}
-		v1CurrentVAPBinding.Spec = tempVAPBinding.Spec
-		return v1CurrentVAPBinding, nil
-	}
-	v1beta1VAPBinding, ok := currentVapBinding.(*admissionregistrationv1beta1.ValidatingAdmissionPolicyBinding)
-	if !ok {
-		return nil, errors.New("unable to convert to v1beta1 VAP")
-	}
-	v1beta1VAPBinding.Spec = transformedVapBinding.Spec
-	return v1beta1VAPBinding.DeepCopy(), nil
+	_ = "STUB: not implemented"
+	return *new(client.Object), nil
 }
 
 func v1beta1ToV1(v1beta1Obj *admissionregistrationv1beta1.ValidatingAdmissionPolicyBinding) (*admissionregistrationv1.ValidatingAdmissionPolicyBinding, error) {
+	_ = "STUB: not implemented"
 	// TODO(jgabani): Use r.scheme.Convert to convert from v1beta1 to v1 once the conversion bug is fixed - https://github.com/kubernetes/kubernetes/issues/126582
-	obj := &admissionregistrationv1.ValidatingAdmissionPolicyBinding{}
-	obj.SetName(v1beta1Obj.GetName())
-	obj.Spec.PolicyName = v1beta1Obj.Spec.PolicyName
-	obj.Spec.ParamRef = &admissionregistrationv1.ParamRef{
-		Name:                    v1beta1Obj.Spec.ParamRef.Name,
-		ParameterNotFoundAction: ptr.To[admissionregistrationv1.ParameterNotFoundActionType](admissionregistrationv1.AllowAction),
-	}
-	actions := []admissionregistrationv1.ValidationAction{}
-
-	for _, action := range v1beta1Obj.Spec.ValidationActions {
-		switch action {
-		case admissionregistrationv1beta1.Deny:
-			actions = append(actions, admissionregistrationv1.Deny)
-		case admissionregistrationv1beta1.Warn:
-			actions = append(actions, admissionregistrationv1.Warn)
-		case admissionregistrationv1beta1.Audit:
-			actions = append(actions, admissionregistrationv1.Audit)
-		default:
-			return nil, fmt.Errorf("%w: unrecognized enforcement action %s, must be `warn`, `deny` or `dryrun`", transform.ErrBadEnforcementAction, action)
-		}
-	}
-
-	obj.Spec.ValidationActions = actions
-	if v1beta1Obj.Spec.MatchResources != nil {
-		obj.Spec.MatchResources = &admissionregistrationv1.MatchResources{}
-		if v1beta1Obj.Spec.MatchResources.ObjectSelector != nil {
-			obj.Spec.MatchResources.ObjectSelector = v1beta1Obj.Spec.MatchResources.ObjectSelector
-		}
-		if v1beta1Obj.Spec.MatchResources.NamespaceSelector != nil {
-			obj.Spec.MatchResources.NamespaceSelector = v1beta1Obj.Spec.MatchResources.NamespaceSelector
-		}
-	}
-
-	return obj, nil
+	return nil, nil
 }
 
 func updateEnforcementPointStatus(status *constraintstatusv1beta1.ConstraintPodStatus, enforcementPoint string, state string, message string, observedGeneration int64) {
-	enforcementPointStatus := constraintstatusv1beta1.EnforcementPointStatus{EnforcementPoint: enforcementPoint, State: state, ObservedGeneration: observedGeneration, Message: message}
-	for i, ep := range status.Status.EnforcementPointsStatus {
-		if ep.EnforcementPoint == enforcementPoint {
-			status.Status.EnforcementPointsStatus[i] = enforcementPointStatus
-			return
-		}
-	}
-	status.Status.EnforcementPointsStatus = append(status.Status.EnforcementPointsStatus, enforcementPointStatus)
+	_ = "STUB: not implemented"
+	return
 }
 
 func cleanEnforcementPointStatus(status *constraintstatusv1beta1.ConstraintPodStatus, enforcementPoint string) {
-	for i, ep := range status.Status.EnforcementPointsStatus {
-		if ep.EnforcementPoint == enforcementPoint {
-			status.Status.EnforcementPointsStatus = append(status.Status.EnforcementPointsStatus[:i], status.Status.EnforcementPointsStatus[i+1:]...)
-			return
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func eventPackerMapFuncFromOwnerRefs() handler.MapFunc {
-	mf := util.EventPackerMapFunc()
-	return func(ctx context.Context, o client.Object) []reconcile.Request {
-		var out []reconcile.Request
-		for _, owner := range o.GetOwnerReferences() {
-			if owner.Controller != nil && *owner.Controller && strings.HasPrefix(owner.APIVersion, "constraints.gatekeeper.sh/") {
-				// APIVersion may be "group/version"; split into group and version
-				group := ""
-				version := owner.APIVersion
-				if parts := strings.SplitN(owner.APIVersion, "/", 2); len(parts) == 2 {
-					group = parts[0]
-					version = parts[1]
-				}
-				u := &unstructured.Unstructured{}
-				u.SetGroupVersionKind(schema.GroupVersionKind{Group: group, Version: version, Kind: owner.Kind})
-				u.SetName(owner.Name)
-				out = append(out, mf(ctx, u)...)
-			}
-		}
-		return out
-	}
+	_ = "STUB: not implemented"
+	return *new(handler.MapFunc)
 }
+
+// APIVersion may be "group/version"; split into group and version

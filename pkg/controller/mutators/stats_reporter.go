@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/view"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 )
@@ -60,84 +58,26 @@ func init() {
 }
 
 // NewStatsReporter creates a reporter for webhook metrics.
-func NewStatsReporter() StatsReporter {
-	r := &reporter{}
-	var err error
-	meter := otel.GetMeterProvider().Meter("gatekeeper")
-
-	mutatorIngestionCountM, err = meter.Int64Counter(
-		mutatorIngestionCountMetricName,
-		metric.WithDescription("Total number of Mutator ingestion actions"),
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	responseTimeInSecM, err = meter.Float64Histogram(
-		mutatorIngestionDurationMetricName,
-		metric.WithDescription("The distribution of Mutator ingestion durations"),
-		metric.WithUnit("s"),
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	_, err = meter.Int64ObservableGauge(
-		mutatorsMetricName,
-		metric.WithDescription("The current number of Mutator objects"),
-		metric.WithInt64Callback(r.observeMutatorsStatus),
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	_, err = meter.Int64ObservableGauge(
-		mutatorsConflictingCountMetricsName,
-		metric.WithDescription("The current number of conflicting Mutator objects"),
-		metric.WithInt64Callback(r.observeMutatorsInConflict),
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	return r
-}
+func NewStatsReporter() StatsReporter { _ = "STUB: not implemented"; return *new(StatsReporter) }
 
 // ReportMutatorIngestionRequest reports both the action of a mutator ingestion and the time
 // required for this request to complete.  The outcome of the ingestion attempt is recorded via the
 // status argument.
 func (r *reporter) ReportMutatorIngestionRequest(ms MutatorIngestionStatus, d time.Duration) error {
-	responseTimeInSecM.Record(context.Background(), d.Seconds(), metric.WithAttributes(attribute.String(statusKey, string(ms))))
-	mutatorIngestionCountM.Add(context.Background(), 1, metric.WithAttributes(attribute.String(statusKey, string(ms))))
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (r *reporter) RegisterTally(statusFn func() map[MutatorIngestionStatus]int, conflictFn func() int) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.statusFns = append(r.statusFns, statusFn)
-	r.conflictFns = append(r.conflictFns, conflictFn)
+	_ = "STUB: not implemented"
+	return
 }
 
 // observeMutatorsStatus reports the current number of mutators by status.
 // Note: statusFns are called while r.mu is held.
 // Registered functions must not call back into this reporter.
 func (r *reporter) observeMutatorsStatus(_ context.Context, observer metric.Int64Observer) error {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
-	totals := map[MutatorIngestionStatus]int{
-		MutatorStatusActive: 0,
-		MutatorStatusError:  0,
-	}
-	for _, fn := range r.statusFns {
-		for status, count := range fn() {
-			totals[status] += count
-		}
-	}
-	for status, count := range totals {
-		observer.Observe(int64(count), metric.WithAttributes(attribute.String(statusKey, string(status))))
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -145,13 +85,6 @@ func (r *reporter) observeMutatorsStatus(_ context.Context, observer metric.Int6
 // Note: conflictFns are called while r.mu is held.
 // Registered functions must not call back into this reporter.
 func (r *reporter) observeMutatorsInConflict(_ context.Context, observer metric.Int64Observer) error {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
-	total := 0
-	for _, fn := range r.conflictFns {
-		total += fn()
-	}
-	observer.Observe(int64(total))
+	_ = "STUB: not implemented"
 	return nil
 }

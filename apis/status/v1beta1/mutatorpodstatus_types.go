@@ -16,16 +16,11 @@ limitations under the License.
 package v1beta1
 
 import (
-	"strings"
-
 	mtypes "github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/types"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/operations"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 // MutationsGroup is the API Group for Gatekeeper Mutators.
@@ -82,39 +77,18 @@ func init() {
 // that has been initialized with the bare minimum of fields to make it functional
 // with the mutator status controller.
 func NewMutatorStatusForPod(pod *corev1.Pod, mutatorID mtypes.ID, scheme *runtime.Scheme) (*MutatorPodStatus, error) {
-	obj := &MutatorPodStatus{}
-	name, err := KeyForMutatorID(pod.Name, mutatorID)
-	if err != nil {
-		return nil, err
-	}
-	obj.SetName(name)
-	obj.SetNamespace(util.GetNamespace())
-	obj.Status.ID = pod.Name
-	obj.Status.Operations = operations.AssignedStringList()
-
-	obj.SetLabels(map[string]string{
-		MutatorNameLabel: mutatorID.Name,
-		MutatorKindLabel: mutatorID.Kind,
-		PodLabel:         pod.Name,
-	})
-
-	// Skip OwnerReference in remote cluster mode
-	if !util.ShouldSkipPodOwnerRef() {
-		if err := controllerutil.SetOwnerReference(pod, obj, scheme); err != nil {
-			return nil, err
-		}
-	}
-
-	return obj, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Skip OwnerReference in remote cluster mode
 
 // KeyForMutatorID returns a unique status object name given the Pod ID and
 // a mutator object.
 func KeyForMutatorID(id string, mID mtypes.ID) (string, error) {
+	_ = "STUB: not implemented"
 	// This adds a requirement that the lowercase of all mutator kinds must be unique.
 	// Though this should already be the case because resource ~= lower(kind) (usually).
 	// We must do this because K8s requires all lowercase letters for resource names
-	kind := strings.ToLower(mID.Kind)
-	name := mID.Name
-	return DashPacker(id, kind, name)
+	return "", nil
 }

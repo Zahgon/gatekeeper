@@ -31,68 +31,22 @@ type SingleRunner struct {
 }
 
 // NewSingleRunner returns an initialized SingleRunner.
-func NewSingleRunner(errChan chan<- error) *SingleRunner {
-	return &SingleRunner{
-		wg: &sync.WaitGroup{},
-		m:  make(map[string]context.CancelFunc),
-		ec: errChan,
-	}
-}
+func NewSingleRunner(errChan chan<- error) *SingleRunner { _ = "STUB: not implemented"; return nil }
 
 // Wait waits for all goroutines managed by the SingleRunner to complete.
 // Returns the first error returned from a managed goroutine, or nil.
-func (s *SingleRunner) Wait() {
-	s.mu.RLock()
-	grp := s.wg
-	s.mu.RUnlock()
-	if grp == nil {
-		return
-	}
-
-	grp.Wait()
-
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	for _, c := range s.m {
-		if c == nil {
-			continue
-		}
-		c()
-	}
-}
+func (s *SingleRunner) Wait() { _ = "STUB: not implemented"; return }
 
 // Go schedules the provided function on a new goroutine if the provided key has
 // not been used for scheduling before.
 func (s *SingleRunner) Go(ctx context.Context, key string, f func(context.Context, chan<- error)) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if s.m == nil {
-		s.m = make(map[string]context.CancelFunc)
-	}
-
-	if _, ok := s.m[key]; ok {
-		// Reject if already running
-		return
-	}
-
-	ctx, cancel := context.WithCancel(ctx)
-	s.m[key] = cancel
-	s.wg.Add(1)
-	go func() {
-		defer s.wg.Done()
-		f(ctx, s.ec)
-	}()
+	_ = "STUB: not implemented"
+	return
 }
+
+// Reject if already running
 
 // Cancel cancels a keyed goroutine if it exists.
-func (s *SingleRunner) Cancel(key string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (s *SingleRunner) Cancel(key string) { _ = "STUB: not implemented"; return }
 
-	if cancel := s.m[key]; cancel != nil {
-		cancel()
-		s.m[key] = nil
-		// Leave the key in the map to prevent its re-use.
-	}
-}
+// Leave the key in the map to prevent its re-use.

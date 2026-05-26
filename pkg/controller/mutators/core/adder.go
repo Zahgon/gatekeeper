@@ -2,23 +2,15 @@ package core
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
-	statusv1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/status/v1beta1"
 	ctrlmutators "github.com/open-policy-agent/gatekeeper/v3/pkg/controller/mutators"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/mutatorstatus"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/mutation"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/types"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/readiness"
 	corev1 "k8s.io/api/core/v1"
-	apitypes "k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
@@ -51,50 +43,16 @@ type Adder struct {
 
 // Add creates a new Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
-func (a *Adder) Add(mgr manager.Manager) error {
-	r := newReconciler(mgr, a.MutationSystem, a.Tracker, a.GetPod, a.Kind, a.NewMutationObj, a.MutatorFor, a.Events, a.Reporter)
-	return a.add(mgr, r)
-}
+func (a *Adder) Add(mgr manager.Manager) error { _ = "STUB: not implemented"; return nil }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler.
 func (a *Adder) add(mgr manager.Manager, r *Reconciler) error {
-	if !mutation.Enabled() {
-		return nil
-	}
-
-	// Create a new controller
-	c, err := controller.New(fmt.Sprintf("%s-controller", strings.ToLower(r.gvk.Kind)), mgr, controller.Options{Reconciler: r})
-	if err != nil {
-		return err
-	}
-
-	// Watch for changes to Mutators.
-	err = c.Watch(
-		source.Kind(mgr.GetCache(), r.newMutationObj(),
-			&handler.EnqueueRequestForObject{}))
-	if err != nil {
-		return err
-	}
-
-	// Watch for changes to MutatorPodStatuses.
-	err = c.Watch(
-		source.Kind(mgr.GetCache(), &statusv1beta1.MutatorPodStatus{},
-			handler.TypedEnqueueRequestsFromMapFunc(mutatorstatus.PodStatusToMutatorMapper(true, r.gvk.Kind, func(_ context.Context, obj client.Object) []reconcile.Request {
-				return []reconcile.Request{{
-					NamespacedName: apitypes.NamespacedName{
-						Namespace: obj.GetNamespace(),
-						Name:      obj.GetName(),
-					},
-				}}
-			})),
-		))
-	if err != nil {
-		return err
-	}
-
-	if a.EventsSource != nil {
-		err = c.Watch(a.EventsSource)
-	}
-
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Create a new controller
+
+// Watch for changes to Mutators.
+
+// Watch for changes to MutatorPodStatuses.

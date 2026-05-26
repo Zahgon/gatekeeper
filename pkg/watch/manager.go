@@ -17,12 +17,8 @@ package watch
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"sync"
 
-	"golang.org/x/sync/errgroup"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -67,312 +63,128 @@ type RemovableCache interface {
 	RemoveInformer(_ context.Context, obj client.Object) error
 }
 
-func New(c RemovableCache) (*Manager, error) {
-	metrics, err := newStatsReporter()
-	if err != nil {
-		return nil, err
-	}
-	recordKeeper, err := newRecordKeeper()
-	if err != nil {
-		return nil, err
-	}
-	wm := &Manager{
-		cache:          c,
-		stopped:        make(chan struct{}),
-		managedKinds:   recordKeeper,
-		watchedKinds:   make(vitalsByGVK),
-		metrics:        metrics,
-		events:         make(chan interface{}, 1024),
-		replayRequests: make(chan replayRequest),
-		replayTracker:  newReplayTracker(),
-	}
-	wm.managedKinds.mgr = wm
-	return wm, nil
-}
+func New(c RemovableCache) (*Manager, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func (wm *Manager) NewRegistrar(parent string, events chan<- event.GenericEvent) (*Registrar, error) {
-	return wm.managedKinds.NewRegistrar(parent, events)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RemoveRegistrar removes a registrar and all its watches.
-func (wm *Manager) RemoveRegistrar(parentName string) error {
-	return wm.managedKinds.RemoveRegistrar(parentName)
-}
+func (wm *Manager) RemoveRegistrar(parentName string) error { _ = "STUB: not implemented"; return nil }
 
 // Start runs the watch manager, processing events received from dynamic informers and distributing them
 // to registrars.
-func (wm *Manager) Start(ctx context.Context) error {
-	if err := wm.checkStarted(); err != nil {
-		return err
-	}
+func (wm *Manager) Start(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-	grp, ctx := errgroup.WithContext(ctx)
-	grp.Go(func() error {
-		<-ctx.Done()
-		// Unblock any informer event handlers
-		close(wm.stopped)
-		return context.Canceled
-	})
-	// Routine for distributing events to listeners.
-	grp.Go(func() error {
-		wm.eventLoop(ctx.Done())
-		return context.Canceled
-	})
-	// Routine for asynchronous replay of past events to joining listeners.
-	grp.Go(wm.replayEventsLoop(ctx))
-	_ = grp.Wait()
-	return nil
-}
+// Unblock any informer event handlers
 
-func (wm *Manager) checkStarted() error {
-	wm.startedMux.Lock()
-	defer wm.startedMux.Unlock()
-	if wm.started {
-		return errors.New("already started")
-	}
-	wm.started = true
-	return nil
-}
+// Routine for distributing events to listeners.
 
-func (wm *Manager) GetManagedGVK() []schema.GroupVersionKind {
-	return wm.managedKinds.GetGVK()
-}
+// Routine for asynchronous replay of past events to joining listeners.
+
+func (wm *Manager) checkStarted() error { _ = "STUB: not implemented"; return nil }
+
+func (wm *Manager) GetManagedGVK() []schema.GroupVersionKind { _ = "STUB: not implemented"; return nil }
 
 func (wm *Manager) addWatch(ctx context.Context, r *Registrar, gvk schema.GroupVersionKind) error {
-	wm.watchedMux.Lock()
-	defer wm.watchedMux.Unlock()
-	return wm.doAddWatch(ctx, r, gvk)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wm *Manager) doAddWatch(ctx context.Context, r *Registrar, gvk schema.GroupVersionKind) error {
+	_ = "STUB: not implemented"
 	// lock acquired by caller
-
-	if r == nil {
-		return fmt.Errorf("nil registrar cannot watch")
-	}
-
-	// watchers is everyone who is *already* watching.
-	watchers := wm.watchedKinds[gvk]
-
-	// m is everyone who *wants* to watch.
-	m := wm.managedKinds.Get() // Not a deadlock but beware if assumptions change...
-	if _, ok := m[gvk]; !ok {
-		return fmt.Errorf("could not mark %+v as managed", gvk)
-	}
-
-	// Sanity
-	if !m[gvk].registrars[r] {
-		return fmt.Errorf("registrar %s not in desired watch set", r.parentName)
-	}
-
-	if watchers.registrars[r] {
-		// Already watching.
-		return nil
-	}
-
-	switch {
-	case len(watchers.registrars) > 0:
-		// Someone else was watching, replay events in the cache to the new watcher.
-		wm.requestReplay(r, gvk)
-	default:
-		u := &unstructured.Unstructured{}
-		u.SetGroupVersionKind(gvk)
-		informer, err := wm.cache.GetInformer(ctx, u, cache.BlockUntilSynced(false))
-		if err != nil || informer == nil {
-			// This is expected to fail if a CRD is unregistered.
-			return fmt.Errorf("getting informer for kind: %+v %w", gvk, err)
-		}
-
-		// First watcher gets a fresh informer, register for events.
-		if _, err := informer.AddEventHandler(wm); err != nil {
-			return err
-		}
-	}
-
-	// Mark it as watched.
-	wv := vitals{
-		gvk:        gvk,
-		registrars: map[*Registrar]bool{r: true},
-	}
-	wm.watchedKinds[gvk] = watchers.merge(wv)
-	if err := wm.metrics.reportGvkCount(int64(len(wm.watchedKinds))); err != nil {
-		log.Error(err, "while trying to report gvk count metric")
-	}
 	return nil
 }
 
+// watchers is everyone who is *already* watching.
+
+// m is everyone who *wants* to watch.
+// Not a deadlock but beware if assumptions change...
+
+// Sanity
+
+// Already watching.
+
+// Someone else was watching, replay events in the cache to the new watcher.
+
+// This is expected to fail if a CRD is unregistered.
+
+// First watcher gets a fresh informer, register for events.
+
+// Mark it as watched.
+
 func (wm *Manager) removeWatch(ctx context.Context, r *Registrar, gvk schema.GroupVersionKind) error {
-	wm.watchedMux.Lock()
-	defer wm.watchedMux.Unlock()
-	return wm.doRemoveWatch(ctx, r, gvk)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wm *Manager) doRemoveWatch(ctx context.Context, r *Registrar, gvk schema.GroupVersionKind) error {
+	_ = "STUB: not implemented"
 	// lock acquired by caller
-
-	v, ok := wm.watchedKinds[gvk]
-	if !ok || !v.registrars[r] {
-		// Not watching.
-		return nil
-	}
-
-	// Cancel any replays that may be pending
-	wm.cancelReplay(r, gvk)
-
-	// Remove this registrar from the watch list
-	delete(v.registrars, r)
-
-	// Skip if there are additional watchers that would prevent us from removing it
-	if len(v.registrars) > 0 {
-		return nil
-	}
-
-	log.Info("all watches removed for gvk, waiting for replays to end", "gvk", gvk)
-
-	// Wait until all replays have exited before canceling the watch,
-	// otherwise the list may unintentionally restart a watch
-	select {
-	case <-wm.replayTracker.replayWaitCh(gvk):
-	case <-wm.stopped:
-	}
-
-	u := &unstructured.Unstructured{}
-	u.SetGroupVersionKind(gvk)
-	if err := wm.cache.RemoveInformer(ctx, u); err != nil {
-		return fmt.Errorf("removing %+v: %w", gvk, err)
-	}
-	delete(wm.watchedKinds, gvk)
-	if err := wm.metrics.reportGvkCount(int64(len(wm.watchedKinds))); err != nil {
-		log.Error(err, "while trying to report gvk count metric")
-	}
-	log.Info("watch removed", "gvk", gvk)
 	return nil
 }
+
+// Not watching.
+
+// Cancel any replays that may be pending
+
+// Remove this registrar from the watch list
+
+// Skip if there are additional watchers that would prevent us from removing it
+
+// Wait until all replays have exited before canceling the watch,
+// otherwise the list may unintentionally restart a watch
 
 // replaceWatches ensures all and only desired watches are running.
 func (wm *Manager) replaceWatches(ctx context.Context, r *Registrar) error {
-	wm.watchedMux.Lock()
-	defer wm.watchedMux.Unlock()
-
-	errlist := NewErrorList()
-
-	desired := wm.managedKinds.Get()
-	for gvk := range wm.watchedKinds {
-		if v, ok := desired[gvk]; ok && v.registrars[r] {
-			// This registrar still desires this gvk, skip.
-			continue
-		}
-		if err := wm.doRemoveWatch(ctx, r, gvk); err != nil {
-			errlist.RemoveGVKErr(gvk, fmt.Errorf("removing watch for %+v %w", gvk, err))
-		}
-	}
-
-	// Add desired watches. This is idempotent for existing watches.
-	for gvk, v := range desired {
-		if !v.registrars[r] {
-			continue
-		}
-		if err := wm.doAddWatch(ctx, r, gvk); err != nil {
-			errlist.AddGVKErr(gvk, fmt.Errorf("adding watch for %+v %w", gvk, err))
-		}
-	}
-
-	if err := wm.metrics.reportGvkCount(int64(len(wm.watchedKinds))); err != nil {
-		log.Error(err, "while trying to report gvk count metric")
-	}
-
-	if errlist.Size() > 0 {
-		return errlist
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// This registrar still desires this gvk, skip.
+
+// Add desired watches. This is idempotent for existing watches.
+
 // OnAdd implements cache.ResourceEventHandler. Called by informers.
 func (wm *Manager) OnAdd(obj interface{}, _ bool) {
+	_ = "STUB: not implemented"
 	// Send event to eventLoop() for processing
-	select {
-	case wm.events <- obj:
-	case <-wm.stopped:
-	}
+	return
 }
 
 // OnUpdate implements cache.ResourceEventHandler. Called by informers.
 func (wm *Manager) OnUpdate(oldObj, newObj interface{}) {
+	_ = "STUB: not implemented"
 	// Send event to eventLoop() for processing
-	select {
-	case wm.events <- oldObj:
-	case <-wm.stopped:
-	}
-	select {
-	case wm.events <- newObj:
-	case <-wm.stopped:
-	}
+	return
 }
 
 // OnDelete implements cache.ResourceEventHandler. Called by informers.
 func (wm *Manager) OnDelete(obj interface{}) {
+	_ = "STUB: not implemented"
 	// Send event to eventLoop() for processing
-	select {
-	case wm.events <- obj:
-	case <-wm.stopped:
-	}
+	return
 }
 
 // eventLoop receives events from informer callbacks and distributes them to registrars.
-func (wm *Manager) eventLoop(stop <-chan struct{}) {
-	for {
-		select {
-		case e, ok := <-wm.events:
-			if !ok {
-				return
-			}
-			wm.distributeEvent(stop, e)
-		case <-stop:
-			return
-		}
-	}
-}
+func (wm *Manager) eventLoop(stop <-chan struct{}) { _ = "STUB: not implemented"; return }
 
 // distributeEvent distributes a single event to all registrars listening for that resource kind.
 func (wm *Manager) distributeEvent(stop <-chan struct{}, obj interface{}) {
-	o, ok := obj.(client.Object)
-	if !ok || o == nil {
-		// Invalid object, drop it
-		return
-	}
-	gvk := o.GetObjectKind().GroupVersionKind()
-	e := event.GenericEvent{
-		Object: o,
-	}
-
-	// Critical lock section
-	var watchers []chan<- event.GenericEvent
-	func() {
-		wm.watchedMux.RLock()
-		defer wm.watchedMux.RUnlock()
-
-		r, ok := wm.watchedKinds[gvk]
-		if !ok {
-			// Nobody is watching, drop it
-			return
-		}
-
-		// TODO(OREN) reduce allocations here
-		watchers = make([]chan<- event.GenericEvent, 0, len(r.registrars))
-		for w := range r.registrars {
-			if w.events == nil {
-				continue
-			}
-			watchers = append(watchers, w.events)
-		}
-	}()
-
-	// Distribute the event
-	for _, w := range watchers {
-		select {
-		case w <- e:
-		// TODO(OREN) add timeout
-		case <-stop:
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Invalid object, drop it
+
+// Critical lock section
+
+// Nobody is watching, drop it
+
+// TODO(OREN) reduce allocations here
+
+// Distribute the event
+
+// TODO(OREN) add timeout

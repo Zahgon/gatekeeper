@@ -1,11 +1,8 @@
 package unversioned
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
 
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/externaldata"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/types"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -37,22 +34,12 @@ type ExternalData struct {
 }
 
 // Validate validates the external data configuration.
-func (e *ExternalData) Validate() error {
-	if !*externaldata.ExternalDataEnabled {
-		return ErrExternalDataFeatureFlag
-	}
-
-	if e.FailurePolicy == types.FailurePolicyUseDefault && e.Default == "" {
-		return ErrExternalDataNoDefault
-	}
-	return nil
-}
+func (e *ExternalData) Validate() error { _ = "STUB: not implemented"; return nil }
 
 // GetPlaceholder returns the placeholder for the given external data provider.
 func (e *ExternalData) GetPlaceholder() *ExternalDataPlaceholder {
-	return &ExternalDataPlaceholder{
-		Ref: e.DeepCopy(),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ExternalDataPlaceholder contains a placeholder value for a field
@@ -68,44 +55,16 @@ type ExternalDataPlaceholder struct {
 
 // DeepCopyWithPlaceholders returns a deep copy of the object.
 func DeepCopyWithPlaceholders(u *unstructured.Unstructured) *unstructured.Unstructured {
-	var deepCopy func(x interface{}) interface{}
-	// deepCopy is a copy of the runtime.DeepCopyJSONValue function that is aware
-	// of the ExternalDataPlaceholder type in addition to all the valid JSON types
-	// ref: https://github.com/kubernetes/apimachinery/blob/a58f9b57c0c7f9c017891e44431fe3a032f12f8c/pkg/runtime/converter.go#L611-L641
-	deepCopy = func(x interface{}) interface{} {
-		switch x := x.(type) {
-		case map[string]interface{}:
-			if x == nil {
-				// Typed nil - an interface{} that contains a type map[string]interface{} with a value of nil
-				return x
-			}
-			clone := make(map[string]interface{}, len(x))
-			for k, v := range x {
-				clone[k] = deepCopy(v)
-			}
-			return clone
-		case []interface{}:
-			if x == nil {
-				// Typed nil - an interface{} that contains a type []interface{} with a value of nil
-				return x
-			}
-			clone := make([]interface{}, len(x))
-			for i, v := range x {
-				clone[i] = deepCopy(v)
-			}
-			return clone
-		case string, int64, bool, float64, nil, json.Number:
-			return x
-		case *ExternalDataPlaceholder:
-			return x.DeepCopy()
-		default:
-			panic(fmt.Errorf("cannot deep copy %T", x))
-		}
-	}
-
-	out := new(unstructured.Unstructured)
-	*out = *u
-	out.Object = deepCopy(u.Object).(map[string]interface{}) // nolint:forcetypeassert
-
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// deepCopy is a copy of the runtime.DeepCopyJSONValue function that is aware
+// of the ExternalDataPlaceholder type in addition to all the valid JSON types
+// ref: https://github.com/kubernetes/apimachinery/blob/a58f9b57c0c7f9c017891e44431fe3a032f12f8c/pkg/runtime/converter.go#L611-L641
+
+// Typed nil - an interface{} that contains a type map[string]interface{} with a value of nil
+
+// Typed nil - an interface{} that contains a type []interface{} with a value of nil
+
+// nolint:forcetypeassert

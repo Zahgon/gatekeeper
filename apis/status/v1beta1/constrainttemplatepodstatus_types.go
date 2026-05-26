@@ -17,13 +17,10 @@ package v1beta1
 
 import (
 	templatesv1beta1 "github.com/open-policy-agent/frameworks/constraint/pkg/apis/templates/v1beta1"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/operations"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 // ConstraintTemplatePodStatusStatus defines the observed state of ConstraintTemplatePodStatus.
@@ -72,32 +69,15 @@ func init() {
 // that has been initialized with the bare minimum of fields to make it functional
 // with the constraint template status controller.
 func NewConstraintTemplateStatusForPod(pod *corev1.Pod, templateName string, scheme *runtime.Scheme) (*ConstraintTemplatePodStatus, error) {
-	obj := &ConstraintTemplatePodStatus{}
-	name, err := KeyForConstraintTemplate(pod.Name, templateName)
-	if err != nil {
-		return nil, err
-	}
-	obj.SetName(name)
-	obj.SetNamespace(util.GetNamespace())
-	obj.Status.ID = pod.Name
-	obj.Status.Operations = operations.AssignedStringList()
-	obj.SetLabels(map[string]string{
-		ConstraintTemplateNameLabel: templateName,
-		PodLabel:                    pod.Name,
-	})
-
-	// Skip OwnerReference in remote cluster mode
-	if !util.ShouldSkipPodOwnerRef() {
-		if err := controllerutil.SetOwnerReference(pod, obj, scheme); err != nil {
-			return nil, err
-		}
-	}
-
-	return obj, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Skip OwnerReference in remote cluster mode
 
 // KeyForConstraintTemplate returns a unique status object name given the Pod ID and
 // a template object.
 func KeyForConstraintTemplate(id string, templateName string) (string, error) {
-	return DashPacker(id, templateName)
+	_ = "STUB: not implemented"
+	return "", nil
 }

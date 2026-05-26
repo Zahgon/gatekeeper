@@ -1,8 +1,6 @@
 package labels
 
 import (
-	"time"
-
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -26,59 +24,22 @@ const (
 // AddManagedLabels adds gator management labels and annotations to a resource.
 // The source parameter identifies the catalog repository (e.g., catalog.DefaultRepository).
 func AddManagedLabels(obj *unstructured.Unstructured, version, bundle, source string) {
-	labels := obj.GetLabels()
-	if labels == nil {
-		labels = make(map[string]string)
-	}
-	labels[LabelManagedBy] = ManagedByValue
-	if bundle != "" {
-		labels[LabelBundle] = bundle
-	}
-	obj.SetLabels(labels)
-
-	annotations := obj.GetAnnotations()
-	if annotations == nil {
-		annotations = make(map[string]string)
-	}
-	annotations[AnnotationVersion] = version
-	annotations[AnnotationSource] = source
-	annotations[AnnotationInstalledAt] = time.Now().UTC().Format(time.RFC3339)
-	obj.SetAnnotations(annotations)
+	_ = "STUB: not implemented"
+	return
 }
 
 // IsManagedByGator checks if a resource is managed by gator.
 // A resource is considered managed if it has BOTH the managed-by label
 // AND the policy-source annotation.
-func IsManagedByGator(obj *unstructured.Unstructured) bool {
-	labels := obj.GetLabels()
-	annotations := obj.GetAnnotations()
-	// Require both label and annotation for a resource to be considered managed
-	return labels[LabelManagedBy] == ManagedByValue && annotations[AnnotationSource] != ""
-}
+func IsManagedByGator(obj *unstructured.Unstructured) bool { _ = "STUB: not implemented"; return false }
+
+// Require both label and annotation for a resource to be considered managed
 
 // GetPolicyVersion returns the policy version from annotations.
-func GetPolicyVersion(obj *unstructured.Unstructured) string {
-	annotations := obj.GetAnnotations()
-	if annotations == nil {
-		return ""
-	}
-	return annotations[AnnotationVersion]
-}
+func GetPolicyVersion(obj *unstructured.Unstructured) string { _ = "STUB: not implemented"; return "" }
 
 // GetBundle returns the bundle name from labels.
-func GetBundle(obj *unstructured.Unstructured) string {
-	labels := obj.GetLabels()
-	if labels == nil {
-		return ""
-	}
-	return labels[LabelBundle]
-}
+func GetBundle(obj *unstructured.Unstructured) string { _ = "STUB: not implemented"; return "" }
 
 // GetInstalledAt returns the installation timestamp from annotations.
-func GetInstalledAt(obj *unstructured.Unstructured) string {
-	annotations := obj.GetAnnotations()
-	if annotations == nil {
-		return ""
-	}
-	return annotations[AnnotationInstalledAt]
-}
+func GetInstalledAt(obj *unstructured.Unstructured) string { _ = "STUB: not implemented"; return "" }

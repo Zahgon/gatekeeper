@@ -16,10 +16,6 @@ limitations under the License.
 package watch
 
 import (
-	"errors"
-	"fmt"
-	"strings"
-
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
@@ -29,13 +25,9 @@ type gvkErr struct {
 	isRemove bool
 }
 
-func (w gvkErr) String() string {
-	return w.Error()
-}
+func (w gvkErr) String() string { _ = "STUB: not implemented"; return "" }
 
-func (w gvkErr) Error() string {
-	return fmt.Sprintf("error for gvk: %s: %s", w.gvk, w.err.Error())
-}
+func (w gvkErr) Error() string { _ = "STUB: not implemented"; return "" }
 
 // ErrorList is an error that aggregates multiple errors.
 type ErrorList struct {
@@ -43,73 +35,39 @@ type ErrorList struct {
 	hasGeneralErr bool
 }
 
-func NewErrorList() *ErrorList {
-	return &ErrorList{
-		errs: []error{},
-	}
-}
+func NewErrorList() *ErrorList { _ = "STUB: not implemented"; return nil }
 
-func (e *ErrorList) String() string {
-	return e.Error()
-}
+func (e *ErrorList) String() string { _ = "STUB: not implemented"; return "" }
 
-func (e *ErrorList) Error() string {
-	var builder strings.Builder
-	for i, err := range e.errs {
-		if i > 0 {
-			builder.WriteRune('\n')
-		}
-		builder.WriteString(err.Error())
-	}
-	return builder.String()
-}
+func (e *ErrorList) Error() string { _ = "STUB: not implemented"; return "" }
 
 // Return gvks for which there were errors adding watches.
 func (e *ErrorList) AddGVKFailures() []schema.GroupVersionKind {
-	gvks := []schema.GroupVersionKind{}
-	for _, err := range e.errs {
-		var gvkErr gvkErr
-		if errors.As(err, &gvkErr) && !gvkErr.isRemove {
-			gvks = append(gvks, gvkErr.gvk)
-		}
-	}
-
-	return gvks
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Return gvks for which there were errors removing watches.
 func (e *ErrorList) RemoveGVKFailures() []schema.GroupVersionKind {
-	gvks := []schema.GroupVersionKind{}
-	for _, err := range e.errs {
-		var gvkErr gvkErr
-		if errors.As(err, &gvkErr) && gvkErr.isRemove {
-			gvks = append(gvks, gvkErr.gvk)
-		}
-	}
-
-	return gvks
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (e *ErrorList) HasGeneralErr() bool {
-	return e.hasGeneralErr
-}
+func (e *ErrorList) HasGeneralErr() bool { _ = "STUB: not implemented"; return false }
 
 // adds a non gvk specific error to the list.
-func (e *ErrorList) Err(err error) {
-	e.errs = append(e.errs, err)
-	e.hasGeneralErr = true
-}
+func (e *ErrorList) Err(err error) { _ = "STUB: not implemented"; return }
 
 // adds a gvk specific error for failing to add a gvk watch to the list.
 func (e *ErrorList) AddGVKErr(gvk schema.GroupVersionKind, err error) {
-	e.errs = append(e.errs, gvkErr{gvk: gvk, err: err})
+	_ = "STUB: not implemented"
+	return
 }
 
 // adds a gvk specific error for failing to remove a gvk watch to the list.
 func (e *ErrorList) RemoveGVKErr(gvk schema.GroupVersionKind, err error) {
-	e.errs = append(e.errs, gvkErr{gvk: gvk, err: err, isRemove: true})
+	_ = "STUB: not implemented"
+	return
 }
 
-func (e *ErrorList) Size() int {
-	return len(e.errs)
-}
+func (e *ErrorList) Size() int { _ = "STUB: not implemented"; return 0 }

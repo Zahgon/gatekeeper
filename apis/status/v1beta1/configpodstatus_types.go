@@ -1,13 +1,10 @@
 package v1beta1
 
 import (
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/operations"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 // ConfigPodStatusStatus defines the observed state of ConfigPodStatus.
@@ -58,29 +55,11 @@ func init() {
 // that has been initialized with the bare minimum of fields to make it functional
 // with the config status controller.
 func NewConfigStatusForPod(pod *corev1.Pod, configNamespace string, configName string, scheme *runtime.Scheme) (*ConfigPodStatus, error) {
-	obj := &ConfigPodStatus{}
-	name, err := KeyForConfig(pod.Name, configNamespace, configName)
-	if err != nil {
-		return nil, err
-	}
-	obj.SetName(name)
-	obj.SetNamespace(util.GetNamespace())
-	obj.Status.ID = pod.Name
-	obj.Status.Operations = operations.AssignedStringList()
-	obj.SetLabels(map[string]string{
-		ConfigNameLabel: configName,
-		PodLabel:        pod.Name,
-	})
-
-	// Skip OwnerReference in remote cluster mode
-	if !util.ShouldSkipPodOwnerRef() {
-		if err := controllerutil.SetOwnerReference(pod, obj, scheme); err != nil {
-			return nil, err
-		}
-	}
-
-	return obj, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Skip OwnerReference in remote cluster mode
 
 // KeyForConfig returns a unique status object name given the Pod ID and
 // a config object.
@@ -93,5 +72,6 @@ func NewConfigStatusForPod(pod *corev1.Pod, configNamespace string, configName s
 // the configName should always be "config", and namespace would be "gatekeeper-system",
 // so this validation will hold.
 func KeyForConfig(id string, configNamespace string, configName string) (string, error) {
-	return DashPacker(id, configNamespace, configName)
+	_ = "STUB: not implemented"
+	return "", nil
 }

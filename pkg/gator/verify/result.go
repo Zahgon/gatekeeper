@@ -1,7 +1,6 @@
 package verify
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -9,9 +8,7 @@ import (
 // Otherwise time formatting must be done inline everywhere.
 type Duration time.Duration
 
-func (d Duration) String() string {
-	return fmt.Sprintf("%.3fs", time.Duration(d).Seconds())
-}
+func (d Duration) String() string { _ = "STUB: not implemented"; return "" }
 
 // SuiteResult is the Result of running a Suite of tests.
 type SuiteResult struct {
@@ -36,17 +33,7 @@ type SuiteResult struct {
 
 // IsFailure returns true if there was a problem running the Suite, or one of the
 // Constraint tests failed.
-func (r *SuiteResult) IsFailure() bool {
-	if r.Error != nil {
-		return true
-	}
-	for _, result := range r.TestResults {
-		if result.IsFailure() {
-			return true
-		}
-	}
-	return false
-}
+func (r *SuiteResult) IsFailure() bool { _ = "STUB: not implemented"; return false }
 
 // TestResult is the results of:
 // 1) Compiling the ConstraintTemplate,
@@ -73,17 +60,7 @@ type TestResult struct {
 
 // IsFailure returns true if there was a problem running the Constraint tests,
 // or one of its Tests failed.
-func (r *TestResult) IsFailure() bool {
-	if r.Error != nil {
-		return true
-	}
-	for _, result := range r.CaseResults {
-		if result.IsFailure() {
-			return true
-		}
-	}
-	return false
-}
+func (r *TestResult) IsFailure() bool { _ = "STUB: not implemented"; return false }
 
 // CaseResult is the result of evaluating a Constraint against a kubernetes
 // object, and comparing the result with the expected result.
@@ -117,6 +94,4 @@ type CaseResult struct {
 
 // IsFailure returns true if the test failed to execute or produced an
 // unexpected result.
-func (r *CaseResult) IsFailure() bool {
-	return r.Error != nil
-}
+func (r *CaseResult) IsFailure() bool { _ = "STUB: not implemented"; return false }

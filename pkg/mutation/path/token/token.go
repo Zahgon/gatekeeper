@@ -15,8 +15,6 @@ limitations under the License.
 
 package token
 
-import "fmt"
-
 // The set of Token types.
 const (
 	ERROR     = "ERROR"
@@ -38,6 +36,4 @@ type (
 	}
 )
 
-func (t Token) String() string {
-	return fmt.Sprintf("%s: %q", t.Type, t.Literal)
-}
+func (t Token) String() string { _ = "STUB: not implemented"; return "" }

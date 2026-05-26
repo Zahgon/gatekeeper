@@ -10,14 +10,9 @@ type wipeData struct{}
 
 // WipeData returns a value which, when passed to client.RemoveData(), wipes
 // all cached data.
-func WipeData() interface{} {
-	return wipeData{}
-}
+func WipeData() interface{} { _ = "STUB: not implemented"; return nil }
 
-func IsWipeData(o interface{}) bool {
-	_, ok := o.(wipeData)
-	return ok
-}
+func IsWipeData(o interface{}) bool { _ = "STUB: not implemented"; return false }
 
 // AugmentedUnstructured is an Object to review, and its Namespace (if known),
 // and its source type.

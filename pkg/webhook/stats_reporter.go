@@ -5,8 +5,6 @@ import (
 	"time"
 
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/view"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 )
@@ -63,50 +61,16 @@ func init() {
 
 // newStatsReporter creaters a reporter for webhook metrics.
 func newStatsReporter() (StatsReporter, error) {
-	if r == nil {
-		var err error
-		r = &reporter{}
-		meter := otel.GetMeterProvider().Meter("gatekeeper")
-
-		validationResponseTimeInSecM, err = meter.Float64Histogram(
-			validationRequestDurationMetricName,
-			metric.WithDescription("The response time in seconds"),
-			metric.WithUnit("s"))
-		if err != nil {
-			return nil, err
-		}
-
-		validationRequestCountM, err = meter.Int64Counter(
-			validationRequestCountMetricName,
-			metric.WithDescription("The number of requests that are routed to validation webhook"))
-		if err != nil {
-			return nil, err
-		}
-		mutationResponseTimeInSecM, err = meter.Float64Histogram(
-			mutationRequestDurationMetricName,
-			metric.WithDescription("The response time in seconds"),
-			metric.WithUnit("s"))
-		if err != nil {
-			return nil, err
-		}
-		mutationRequestCountM, err = meter.Int64Counter(
-			mutationRequestCountMetricName,
-			metric.WithDescription("The number of requests that are routed to mutation webhook"))
-		if err != nil {
-			return nil, err
-		}
-	}
-	return r, nil
+	_ = "STUB: not implemented"
+	return *new(StatsReporter), nil
 }
 
 func (r *reporter) ReportValidationRequest(ctx context.Context, response requestResponse, isDryRun string, d time.Duration) error {
-	validationResponseTimeInSecM.Record(ctx, d.Seconds(), metric.WithAttributes(attribute.String(admissionStatusKey, string(response))))
-	validationRequestCountM.Add(ctx, 1, metric.WithAttributes(attribute.String(admissionDryRunKey, isDryRun), attribute.String(admissionStatusKey, string(response))))
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (r *reporter) ReportMutationRequest(ctx context.Context, response requestResponse, d time.Duration) error {
-	mutationResponseTimeInSecM.Record(ctx, d.Seconds(), metric.WithAttributes(attribute.String(mutationStatusKey, string(response))))
-	mutationRequestCountM.Add(ctx, 1, metric.WithAttributes(attribute.String(mutationStatusKey, string(response))))
+	_ = "STUB: not implemented"
 	return nil
 }

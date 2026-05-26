@@ -2,7 +2,6 @@ package export
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/export/dapr"
@@ -26,66 +25,37 @@ type System struct {
 	connectionToDriver map[string]string
 }
 
-func NewSystem() *System {
-	return &System{
-		connectionToDriver: map[string]string{},
-	}
-}
+func NewSystem() *System { _ = "STUB: not implemented"; return nil }
 
 func (s *System) Publish(ctx context.Context, connectionName string, subject string, msg interface{}) error {
-	s.mux.RLock()
-	defer s.mux.RUnlock()
-	if dName, ok := s.connectionToDriver[connectionName]; ok {
-		return supportedDrivers[dName].Publish(ctx, connectionName, msg, subject)
-	}
-	return fmt.Errorf("connection is not initialized, name: %s ", connectionName)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *System) UpsertConnection(ctx context.Context, config interface{}, connectionName string, newDriver string) error {
-	s.mux.Lock()
-	defer s.mux.Unlock()
-	// Check if the connection already exists.
-	if oldDriver, ok := s.connectionToDriver[connectionName]; ok {
-		// If the provider is the same, update the existing connection.
-		if oldDriver == newDriver {
-			return supportedDrivers[newDriver].UpdateConnection(ctx, connectionName, config)
-		}
-	}
-	// Check if the provider is supported.
-	if d, ok := supportedDrivers[newDriver]; ok {
-		err := d.CreateConnection(ctx, connectionName, config)
-		if err != nil {
-			return err
-		}
-
-		// Close the existing connection after successfully creating the new one.
-		if err := s.closeConnection(connectionName); err != nil {
-			return err
-		}
-		// Add the new connection and provider to the maps.
-		s.connectionToDriver[connectionName] = newDriver
-		return nil
-	}
-	return fmt.Errorf("driver %s is not supported", newDriver)
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// Check if the connection already exists.
+
+// If the provider is the same, update the existing connection.
+
+// Check if the provider is supported.
+
+// Close the existing connection after successfully creating the new one.
+
+// Add the new connection and provider to the maps.
+
 func (s *System) CloseConnection(connectionName string) error {
-	s.mux.Lock()
-	defer s.mux.Unlock()
-	return s.closeConnection(connectionName)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *System) closeConnection(connectionName string) error {
-	if driverName, ok := s.connectionToDriver[connectionName]; ok {
-		// connection should be deleted from the map before closing it to make sure old connection is not accessible if close fails
-		// also avoids not respecting the latest connection with the same name if close fails
-		delete(s.connectionToDriver, connectionName)
-		if conn, ok := supportedDrivers[driverName]; ok {
-			err := conn.CloseConnection(connectionName)
-			if err != nil {
-				return err
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// connection should be deleted from the map before closing it to make sure old connection is not accessible if close fails
+// also avoids not respecting the latest connection with the same name if close fails

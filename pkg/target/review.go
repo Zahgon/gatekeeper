@@ -21,9 +21,8 @@ type gkReview struct {
 }
 
 func (g *gkReview) GetAdmissionRequest() *admissionv1.AdmissionRequest {
-	return &g.AdmissionRequest
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (g *gkReview) IsAdmissionRequest() bool {
-	return g.isAdmission
-}
+func (g *gkReview) IsAdmissionRequest() bool { _ = "STUB: not implemented"; return false }

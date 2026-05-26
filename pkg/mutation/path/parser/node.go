@@ -15,11 +15,6 @@ limitations under the License.
 
 package parser
 
-import (
-	"fmt"
-	"strings"
-)
-
 type NodeType string
 
 const (
@@ -43,28 +38,11 @@ type Path struct {
 	Nodes []Node
 }
 
-func (r Path) DeepCopy() Path {
-	out := Path{
-		Nodes: make([]Node, len(r.Nodes)),
-	}
-	for i := 0; i < len(r.Nodes); i++ {
-		out.Nodes[i] = r.Nodes[i].DeepCopyNode()
-	}
-	return out
-}
+func (r Path) DeepCopy() Path { _ = "STUB: not implemented"; return *new(Path) }
 
-func (r Path) String() string {
-	result := strings.Builder{}
-	for i, n := range r.Nodes {
-		nStr := n.String()
-		if n.Type() == ObjectNode && i > 0 {
-			// No leading separator, and no separators before List Nodes.
-			result.WriteString(".")
-		}
-		result.WriteString(nStr)
-	}
-	return result.String()
-}
+func (r Path) String() string { _ = "STUB: not implemented"; return "" }
+
+// No leading separator, and no separators before List Nodes.
 
 type Object struct {
 	Reference string
@@ -72,24 +50,13 @@ type Object struct {
 
 var _ Node = Object{}
 
-func (o Object) Type() NodeType {
-	return ObjectNode
-}
+func (o Object) Type() NodeType { _ = "STUB: not implemented"; return *new(NodeType) }
 
-func (o Object) DeepCopyNode() Node {
-	oOut := o.DeepCopy()
-	return &oOut
-}
+func (o Object) DeepCopyNode() Node { _ = "STUB: not implemented"; return *new(Node) }
 
-func (o Object) DeepCopy() Object {
-	return Object{
-		Reference: o.Reference,
-	}
-}
+func (o Object) DeepCopy() Object { _ = "STUB: not implemented"; return *new(Object) }
 
-func (o Object) String() string {
-	return quote(o.Reference)
-}
+func (o Object) String() string { _ = "STUB: not implemented"; return "" }
 
 type List struct {
 	KeyField string
@@ -99,43 +66,17 @@ type List struct {
 
 var _ Node = List{}
 
-func (l List) Type() NodeType {
-	return ListNode
-}
+func (l List) Type() NodeType { _ = "STUB: not implemented"; return *new(NodeType) }
 
-func (l List) DeepCopyNode() Node {
-	lout := l.DeepCopy()
-	return &lout
-}
+func (l List) DeepCopyNode() Node { _ = "STUB: not implemented"; return *new(Node) }
 
-func (l List) DeepCopy() List {
-	out := List{}
-	out.KeyField = l.KeyField
-	out.Glob = l.Glob
-	// KeyValue (interface{}) will be one of: [string, int, nil]
-	out.KeyValue = l.KeyValue
-	return out
-}
+func (l List) DeepCopy() List { _ = "STUB: not implemented"; return *new(List) }
 
-func (l List) String() string {
-	key := quote(l.KeyField)
-	if l.Glob {
-		return fmt.Sprintf("[%s: *]", key)
-	}
-	switch v := l.KeyValue.(type) {
-	case string:
-		q := quote(v)
-		return fmt.Sprintf("[%s: %s]", key, q)
+// KeyValue (interface{}) will be one of: [string, int, nil]
 
-	case int, int64:
-		return fmt.Sprintf("[%s: %d]", key, v)
+func (l List) String() string { _ = "STUB: not implemented"; return "" }
 
-	case nil:
-	default:
-	}
-	// Represents an improperly specified List node.
-	return fmt.Sprintf("[%s: ]", key)
-}
+// Represents an improperly specified List node.
 
 // quote optionally adds double quotes around the passed string if needed.
 // Quotes are needed for:
@@ -143,19 +84,7 @@ func (l List) String() string {
 //     be tokenized as non-strings and need escaping.
 //   - Strings starting digits, that would otherwise be tokenized as an integer
 //   - Empty strings
-func quote(s string) string {
-	if len(s) == 0 {
-		return `""`
-	}
-	switch {
-	case strings.ContainsAny(s, "'\"\t\n \\*[]:."),
-		strings.ContainsAny(s[0:1], "0123456789"):
-		// Using fmt.Sprintf with %q converts whitespace to escape sequences, and we
-		// don't want that.
-		s = strings.ReplaceAll(s, `\`, `\\`)
-		s = strings.ReplaceAll(s, `"`, `\"`)
-		return `"` + s + `"`
-	}
+func quote(s string) string { _ = "STUB: not implemented"; return "" }
 
-	return s
-}
+// Using fmt.Sprintf with %q converts whitespace to escape sequences, and we
+// don't want that.

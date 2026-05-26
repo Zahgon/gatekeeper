@@ -11,10 +11,8 @@ import (
 // NewAuditCacheLister instantiates a new AuditCache which will read objects in
 // watched from auditCache.
 func NewAuditCacheLister(auditCache client.Reader, lister WatchIterator) *CacheLister {
-	return &CacheLister{
-		auditCache:    auditCache,
-		watchIterator: lister,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CacheLister lists objects from the audit controller's cache.
@@ -38,37 +36,11 @@ type WatchIterator interface {
 
 // ListObjects lists all objects from the audit cache.
 func (l *CacheLister) ListObjects(ctx context.Context) ([]unstructured.Unstructured, error) {
-	var objs []unstructured.Unstructured
-	err := l.watchIterator.DoForEach(func(gvk schema.GroupVersionKind) error {
-		gvkObjects, err := listObjects(ctx, l.auditCache, gvk)
-		if err != nil {
-			return err
-		}
-
-		objs = append(objs, gvkObjects...)
-
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return objs, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func listObjects(ctx context.Context, reader client.Reader, gvk schema.GroupVersionKind) ([]unstructured.Unstructured, error) {
-	list := &unstructured.UnstructuredList{
-		Object: map[string]interface{}{},
-		Items:  []unstructured.Unstructured{},
-	}
-
-	gvk.Kind += "List"
-	list.SetGroupVersionKind(gvk)
-
-	err := reader.List(ctx, list)
-	if err != nil {
-		return nil, err
-	}
-
-	return list.Items, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

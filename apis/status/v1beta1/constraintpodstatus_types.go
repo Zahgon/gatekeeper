@@ -16,16 +16,11 @@ limitations under the License.
 package v1beta1
 
 import (
-	"strings"
-
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/operations"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 // ConstraintsGroup is the API Group for Gatekeeper Constraints.
@@ -90,40 +85,20 @@ func init() {
 // that has been initialized with the bare minimum of fields to make it functional
 // with the constraint status controller.
 func NewConstraintStatusForPod(pod *corev1.Pod, constraint *unstructured.Unstructured, scheme *runtime.Scheme) (*ConstraintPodStatus, error) {
-	obj := &ConstraintPodStatus{}
-	name, err := KeyForConstraint(pod.Name, constraint)
-	if err != nil {
-		return nil, err
-	}
-	obj.SetName(name)
-	obj.SetNamespace(util.GetNamespace())
-	obj.Status.ID = pod.Name
-	obj.Status.Operations = operations.AssignedStringList()
-	obj.SetLabels(map[string]string{
-		ConstraintNameLabel: constraint.GetName(),
-		ConstraintKindLabel: constraint.GetKind(),
-		PodLabel:            pod.Name,
-		// the template name is the lower-case of the constraint kind
-		ConstraintTemplateNameLabel: strings.ToLower(constraint.GetKind()),
-	})
-
-	// Skip OwnerReference in remote cluster mode
-	if !util.ShouldSkipPodOwnerRef() {
-		if err = controllerutil.SetOwnerReference(pod, obj, scheme); err != nil {
-			return nil, err
-		}
-	}
-
-	return obj, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// the template name is the lower-case of the constraint kind
+
+// Skip OwnerReference in remote cluster mode
 
 // KeyForConstraint returns a unique status object name given the Pod ID and
 // a constraint object.
 func KeyForConstraint(id string, constraint *unstructured.Unstructured) (string, error) {
+	_ = "STUB: not implemented"
 	// We don't need to worry that lower-casing the kind will cause a collision because
 	// the constraint framework requires resource == lower-case kind. We must do this
 	// because K8s requires all lowercase letters for resource names
-	kind := strings.ToLower(constraint.GetObjectKind().GroupVersionKind().Kind)
-	name := constraint.GetName()
-	return DashPacker(id, kind, name)
+	return "", nil
 }

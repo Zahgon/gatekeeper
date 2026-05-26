@@ -17,17 +17,8 @@ package readiness
 
 import (
 	"flag"
-	"fmt"
 	"sync"
 
-	"github.com/open-policy-agent/frameworks/constraint/pkg/apis/templates/v1beta1"
-	"github.com/open-policy-agent/frameworks/constraint/pkg/core/templates"
-	configv1alpha1 "github.com/open-policy-agent/gatekeeper/v3/apis/config/v1alpha1"
-	syncset1alpha1 "github.com/open-policy-agent/gatekeeper/v3/apis/syncset/v1alpha1"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/logging"
-	"github.com/pkg/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
@@ -68,389 +59,134 @@ type objectTracker struct {
 }
 
 func newObjTracker(gvk schema.GroupVersionKind, fn objDataFactory) *objectTracker {
-	if fn == nil {
-		fn = objDataFromFlags
-	}
-
-	return &objectTracker{
-		gvk:          gvk,
-		canceled:     make(objSet),
-		expect:       make(objSet),
-		tryCanceled:  make(objRetrySet),
-		seen:         make(objSet),
-		satisfied:    make(objSet),
-		tryCancelObj: fn,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Expect sets an expectation that must be met by a corresponding call to Observe().
-func (t *objectTracker) Expect(o runtime.Object) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
+func (t *objectTracker) Expect(o runtime.Object) { _ = "STUB: not implemented"; return }
 
-	// Only accept expectations until we're marked as fully populated.
-	if t.populated {
-		return
-	}
+// Only accept expectations until we're marked as fully populated.
 
-	// Don't expect resources which are being terminated.
-	accessor, err := meta.Accessor(o)
-	if err == nil && !accessor.GetDeletionTimestamp().IsZero() {
-		return
-	}
+// Don't expect resources which are being terminated.
 
-	k, err := objKeyFromObject(o)
-	if err != nil {
-		log.Error(err, "skipping")
-		return
-	}
+// Canceled objects cannot be expected again.
 
-	// Canceled objects cannot be expected again.
-	if _, ok := t.canceled[k]; ok {
-		return
-	}
+// Satisfied objects cannot be expected again.
 
-	// Satisfied objects cannot be expected again.
-	if _, ok := t.satisfied[k]; ok {
-		return
-	}
-
-	// We may have seen it before starting to expect it
-	if _, ok := t.seen[k]; ok {
-		delete(t.seen, k)
-		delete(t.expect, k)
-		t.satisfied[k] = struct{}{}
-		return
-	}
-
-	t.expect[k] = struct{}{}
-}
+// We may have seen it before starting to expect it
 
 // nolint: gocritic // Using a pointer here is less efficient and results in more copying.
-func (t *objectTracker) cancelExpectNoLock(k objKey) {
-	delete(t.expect, k)
-	delete(t.seen, k)
-	delete(t.satisfied, k)
-	delete(t.tryCanceled, k)
-	t.canceled[k] = struct{}{}
-}
+func (t *objectTracker) cancelExpectNoLock(k objKey) { _ = "STUB: not implemented"; return }
 
 // CancelExpect cancels an expectation and marks it so it
 // cannot be expected again going forward.
-func (t *objectTracker) CancelExpect(o runtime.Object) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
+func (t *objectTracker) CancelExpect(o runtime.Object) { _ = "STUB: not implemented"; return }
 
-	// Respect circuit-breaker.
-	if t.allSatisfied {
-		return
-	}
-
-	k, err := objKeyFromObject(o)
-	if err != nil {
-		log.Error(err, "skipping")
-		return
-	}
-
-	t.cancelExpectNoLock(k)
-}
+// Respect circuit-breaker.
 
 // TryCancelExpect will check the readinessRetries left on an Object, and cancel
 // the expectation for that object if no retries remain.  Returns True if the
 // expectation was canceled.
 func (t *objectTracker) TryCancelExpect(o runtime.Object) bool {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	// Respect circuit-breaker.
-	if t.allSatisfied {
-		return false
-	}
-
-	k, err := objKeyFromObject(o)
-	if err != nil {
-		log.Error(err, "skipping")
-		return false
-	}
-
-	// Check if it's time to delete an expectation or just decrement its allotted retries
-	obj, ok := t.tryCanceled[k]
-	if !ok {
-		// If the item isn't in the map, add it.  This is the only place t.newObjData() should be called.
-		obj = t.tryCancelObj()
-	}
-	shouldDel := obj.decrementRetries()
-	t.tryCanceled[k] = obj // set the changed obj back to the map, as the value is not a pointer
-
-	if shouldDel {
-		t.cancelExpectNoLock(k)
-	}
-
-	return shouldDel
+	_ = "STUB: not implemented"
+	return false
 }
+
+// Respect circuit-breaker.
+
+// Check if it's time to delete an expectation or just decrement its allotted retries
+
+// If the item isn't in the map, add it.  This is the only place t.newObjData() should be called.
+
+// set the changed obj back to the map, as the value is not a pointer
 
 // ExpectationsDone tells the tracker to stop accepting new expectations.
 // Only expectations set before ExpectationsDone is called will be considered
 // in Satisfied().
-func (t *objectTracker) ExpectationsDone() {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	log.Info("ExpectationsDone", "gvk", t.gvk, "expectationCount", len(t.expect)+len(t.satisfied))
-	t.populated = true
-}
+func (t *objectTracker) ExpectationsDone() { _ = "STUB: not implemented"; return }
 
 // Unsatisfied returns all unsatisfied expectations.
-func (t *objectTracker) unsatisfied() []objKey {
-	t.mu.RLock()
-	defer t.mu.RUnlock()
-
-	out := make([]objKey, 0, len(t.expect))
-	for k := range t.expect {
-		if _, ok := t.satisfied[k]; ok {
-			continue
-		}
-		out = append(out, k)
-	}
-	return out
-}
+func (t *objectTracker) unsatisfied() []objKey { _ = "STUB: not implemented"; return nil }
 
 // Observe makes an observation. Observations can be made before expectations and vice-versa.
-func (t *objectTracker) Observe(o runtime.Object) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
+func (t *objectTracker) Observe(o runtime.Object) { _ = "STUB: not implemented"; return }
 
-	// Respect circuit-breaker.
-	if t.allSatisfied {
-		return
-	}
+// Respect circuit-breaker.
 
-	k, err := objKeyFromObject(o)
-	if err != nil {
-		log.Error(err, "skipping")
-		return
-	}
+// Ignore canceled expectations
 
-	// Ignore canceled expectations
-	if _, ok := t.canceled[k]; ok {
-		return
-	}
+// Ignore satisfied expectations
 
-	// Ignore satisfied expectations
-	if _, ok := t.satisfied[k]; ok {
-		return
-	}
+// Satisfy existing expectation
 
-	_, wasExpecting := t.expect[k]
-	switch {
-	case wasExpecting:
-		// Satisfy existing expectation
-		delete(t.seen, k)
-		delete(t.expect, k)
-		t.satisfied[k] = struct{}{}
-		return
-	case !wasExpecting && t.populated:
-		// Not expecting and no longer accepting expectations.
-		// No need to track.
-		delete(t.seen, k)
-		return
-	}
+// Not expecting and no longer accepting expectations.
+// No need to track.
 
-	// Track for future expectation.
-	t.seen[k] = struct{}{}
+// Track for future expectation.
 
-	log.V(logging.DebugLevel).Info("[readiness] observed data", "gvk", o.GetObjectKind().GroupVersionKind())
-}
-
-func (t *objectTracker) Populated() bool {
-	t.mu.RLock()
-	defer t.mu.RUnlock()
-
-	return t.populated
-}
+func (t *objectTracker) Populated() bool { _ = "STUB: not implemented"; return false }
 
 // Satisfied returns true if all expectations have been satisfied.
 // Expectations must be populated before the tracker can be considered satisfied.
 // Expectations are marked as populated by calling ExpectationsDone().
 func (t *objectTracker) Satisfied() bool {
+	_ = "STUB: not implemented"
 	// Determine if we need to acquire a write lock, which blocks concurrent access
-	satisfied, needMutate := func() (bool, bool) {
-		t.mu.RLock()
-		defer t.mu.RUnlock()
-
-		// matching observations and expectations may be able to be resolved
-		resolvableExpectations := len(t.seen) > 0 && len(t.expect) > 0
-
-		// We only need the write lock when all of the following are true:
-		//  1. We haven't yet tripped the circuit breaker (t.allSatisfied)
-		//  2. We have received all necessary expectations (t.populated)
-		//  3. There is potential for action to be taken
-		//     a. There are resolvableExpectations
-		//     - OR -
-		//     b. There are no expectations.  I.e. we are ready to declare t.allSatisfied = true
-		needMutate := !t.allSatisfied && t.populated &&
-			(resolvableExpectations || len(t.expect) == 0)
-
-		return t.allSatisfied, needMutate
-	}()
-
-	if satisfied {
-		return true
-	}
-
-	// Proceed only if we have state changes to make.
-	if !needMutate {
-		// Read lock to prevent concurrent read/write while logging readiness state.
-		t.mu.RLock()
-		log.V(logging.DebugLevel).Info("readiness state", "gvk", t.gvk, "satisfied", fmt.Sprintf("%d/%d", len(t.satisfied), len(t.expect)+len(t.satisfied)), "populated", t.populated)
-		t.mu.RUnlock()
-		return false
-	}
-
-	// From here we need a write lock to mutate state.
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	// Resolve any expectations where the observation preceded the expect request.
-	var resolveCount int
-	for k := range t.seen {
-		if _, ok := t.expect[k]; !ok {
-			continue
-		}
-		delete(t.seen, k)
-		delete(t.expect, k)
-		t.satisfied[k] = struct{}{}
-		resolveCount++
-	}
-	log.V(logging.DebugLevel).Info("resolved pre-observations", "gvk", t.gvk, "count", resolveCount)
-	log.V(logging.DebugLevel).Info("readiness state", "gvk", t.gvk, "satisfied", fmt.Sprintf("%d/%d", len(t.satisfied), len(t.expect)+len(t.satisfied)))
-
-	// All satisfied if:
-	//  1. Expectations have been previously populated
-	//  2. No expectations remain
-	if t.populated && len(t.expect) == 0 {
-		t.allSatisfied = true
-		log.V(logging.DebugLevel).Info("all expectations satisfied", "gvk", t.gvk)
-
-		// Circuit-breaker tripped - free tracking memory
-		t.kindsSnapshot = t.kindsNoLock() // Take snapshot as kinds() depends on the maps we're about to clear.
-		t.seen = nil
-		t.expect = nil
-		t.satisfied = nil
-		t.canceled = nil
-		t.tryCanceled = nil
-	}
-	return t.allSatisfied
+	return false
 }
 
-func (t *objectTracker) kinds() []schema.GroupVersionKind {
-	t.mu.RLock()
-	defer t.mu.RUnlock()
-	return t.kindsNoLock()
-}
+// matching observations and expectations may be able to be resolved
+
+// We only need the write lock when all of the following are true:
+//  1. We haven't yet tripped the circuit breaker (t.allSatisfied)
+//  2. We have received all necessary expectations (t.populated)
+//  3. There is potential for action to be taken
+//     a. There are resolvableExpectations
+//     - OR -
+//     b. There are no expectations.  I.e. we are ready to declare t.allSatisfied = true
+
+// Proceed only if we have state changes to make.
+
+// Read lock to prevent concurrent read/write while logging readiness state.
+
+// From here we need a write lock to mutate state.
+
+// Resolve any expectations where the observation preceded the expect request.
+
+// All satisfied if:
+//  1. Expectations have been previously populated
+//  2. No expectations remain
+
+// Circuit-breaker tripped - free tracking memory
+// Take snapshot as kinds() depends on the maps we're about to clear.
+
+func (t *objectTracker) kinds() []schema.GroupVersionKind { _ = "STUB: not implemented"; return nil }
 
 func (t *objectTracker) kindsNoLock() []schema.GroupVersionKind {
-	if t.kindsSnapshot != nil {
-		out := make([]schema.GroupVersionKind, len(t.kindsSnapshot))
-		copy(out, t.kindsSnapshot)
-		return out
-	}
-
-	m := make(map[schema.GroupVersionKind]struct{})
-	for k := range t.satisfied {
-		m[k.gvk] = struct{}{}
-	}
-	for k := range t.expect {
-		m[k.gvk] = struct{}{}
-	}
-
-	if len(m) == 0 {
-		return nil
-	}
-
-	out := make([]schema.GroupVersionKind, 0, len(m))
-	for k := range m {
-		out = append(out, k)
-	}
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // objKeyFromObject constructs an objKey representing the provided runtime.Object.
 func objKeyFromObject(obj runtime.Object) (objKey, error) {
-	accessor, err := meta.Accessor(obj)
-	if err != nil {
-		return objKey{}, err
-	}
-
-	// Index ConstraintTemplates by their corresponding constraint GVK.
-	// This will be leveraged in tracker.Satisfied().
-	var gvk schema.GroupVersionKind
-	switch v := obj.(type) {
-	case *templates.ConstraintTemplate:
-		gvk = schema.GroupVersionKind{
-			Group:   constraintGroup,
-			Version: v1beta1.SchemeGroupVersion.Version,
-			Kind:    v.Spec.CRD.Spec.Names.Kind,
-		}
-	case *v1beta1.ConstraintTemplate:
-		gvk = schema.GroupVersionKind{
-			Group:   constraintGroup,
-			Version: v1beta1.SchemeGroupVersion.Version,
-			Kind:    v.Spec.CRD.Spec.Names.Kind,
-		}
-	case *configv1alpha1.Config:
-		gvk = schema.GroupVersionKind{
-			Group:   configv1alpha1.GroupVersion.Group,
-			Version: configv1alpha1.GroupVersion.Version,
-			Kind:    "Config",
-		}
-	case *syncset1alpha1.SyncSet:
-		gvk = schema.GroupVersionKind{
-			Group:   syncset1alpha1.GroupVersion.Group,
-			Version: syncset1alpha1.GroupVersion.Version,
-			Kind:    "SyncSet",
-		}
-	case *unstructured.Unstructured:
-		ugvk := obj.GetObjectKind().GroupVersionKind()
-		if ugvk.GroupVersion() == v1beta1.SchemeGroupVersion && ugvk.Kind == "ConstraintTemplate" {
-			cKind, found, err := unstructured.NestedString(v.Object, "spec", "crd", "spec", "names", "kind")
-			if !found || err != nil {
-				return objKey{}, errors.Wrapf(err, "retrieving nested CRD Kind field for unstructured. Found: %v Object: %v", found, obj)
-			}
-			gvk = schema.GroupVersionKind{
-				Group:   constraintGroup,
-				Version: v1beta1.SchemeGroupVersion.Version,
-				Kind:    cKind,
-			}
-		} else {
-			gvk = ugvk
-		}
-	default:
-		// unfortunately gvk is not always populated by kubernetes, we would need access
-		// to the scheme to make an educated guess on the conversion between K8s struct
-		// and GVK. Fortunately, if we aren't talking about constraints/templates, there
-		// is no parent/child relationship, and all other object trackers already index
-		// by gvk
-		gvk = schema.GroupVersionKind{}
-	}
-
-	nn := types.NamespacedName{Namespace: accessor.GetNamespace(), Name: accessor.GetName()}
-	return objKey{namespacedName: nn, gvk: gvk}, nil
+	_ = "STUB: not implemented"
+	return *new(objKey), nil
 }
+
+// Index ConstraintTemplates by their corresponding constraint GVK.
+// This will be leveraged in tracker.Satisfied().
+
+// unfortunately gvk is not always populated by kubernetes, we would need access
+// to the scheme to make an educated guess on the conversion between K8s struct
+// and GVK. Fortunately, if we aren't talking about constraints/templates, there
+// is no parent/child relationship, and all other object trackers already index
+// by gvk
 
 // IsExpecting returns true if the gvk/name combination was previously expected by the tracker.
 // Only valid until allSatisfied==true as tracking memory is freed at that point.
 // For testing only.
 func (t *objectTracker) IsExpecting(gvk schema.GroupVersionKind, nsName types.NamespacedName) bool {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	k := objKey{gvk: gvk, namespacedName: nsName}
-	if _, ok := t.expect[k]; ok {
-		return true
-	}
-	if _, ok := t.satisfied[k]; ok {
-		return true
-	}
+	_ = "STUB: not implemented"
 	return false
 }

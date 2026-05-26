@@ -1,8 +1,6 @@
 package target
 
 import (
-	"fmt"
-
 	"github.com/open-policy-agent/frameworks/constraint/pkg/core/constraints"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/match"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/types"
@@ -19,75 +17,19 @@ type Matcher struct {
 }
 
 func (m *Matcher) Match(review interface{}) (bool, error) {
-	if m.match == nil {
+	_ = "STUB: not implemented"
+	return false,
+
 		// No-op if Match unspecified.
-		return true, nil
-	}
-
-	gkReq, ok := review.(*gkReview)
-	if !ok {
-		return false, fmt.Errorf("%w: expect %T, got %T", ErrReviewFormat, &gkReview{}, review)
-	}
-
-	obj, oldObj, ns, err := gkReviewToObject(gkReq)
-	if err != nil {
-		return false, err
-	}
-
-	if (ns == nil) && (gkReq.Namespace != "") {
-		ns = m.cache.GetNamespace(gkReq.Namespace)
-	}
-
-	return matchAny(m, ns, gkReq.source, obj, oldObj)
+		nil
 }
 
 func matchAny(m *Matcher, ns *corev1.Namespace, source types.SourceType, objs ...*unstructured.Unstructured) (bool, error) {
-	nilObj := 0
-	for _, obj := range objs {
-		if obj == nil || obj.Object == nil {
-			nilObj++
-			continue
-		}
-
-		t := &match.Matchable{
-			Object:    obj,
-			Namespace: ns,
-			Source:    source,
-		}
-		matched, err := match.Matches(m.match, t)
-		if err != nil {
-			return false, fmt.Errorf("%w: %v :%w", ErrMatching, obj.GetName(), err)
-		}
-
-		if matched {
-			return true, nil
-		}
-	}
-
-	if nilObj == len(objs) {
-		return false, fmt.Errorf("%w: neither object nor old object are defined", ErrRequestObject)
-	}
+	_ = "STUB: not implemented"
 	return false, nil
 }
 
 func gkReviewToObject(req *gkReview) (*unstructured.Unstructured, *unstructured.Unstructured, *corev1.Namespace, error) {
-	var obj *unstructured.Unstructured
-	if req.Object.Raw != nil {
-		obj = &unstructured.Unstructured{}
-		err := obj.UnmarshalJSON(req.Object.Raw)
-		if err != nil {
-			return nil, nil, nil, fmt.Errorf("%w: failed to unmarshal gkReview object %s", ErrRequestObject, string(req.Object.Raw))
-		}
-	}
-
-	var oldObj *unstructured.Unstructured
-	if req.OldObject.Raw != nil {
-		oldObj = &unstructured.Unstructured{}
-		err := oldObj.UnmarshalJSON(req.OldObject.Raw)
-		if err != nil {
-			return nil, nil, nil, fmt.Errorf("%w: failed to unmarshal gkReview oldObject %s", ErrRequestObject, string(req.OldObject.Raw))
-		}
-	}
-
-	return obj, oldObj, req.namespace, nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil, nil
 }

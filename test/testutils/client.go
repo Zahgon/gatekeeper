@@ -1,10 +1,8 @@
 package testutils
 
 import (
-	"context"
 	"testing"
 
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -21,22 +19,8 @@ import (
 // test which must make use of this cleanup function, you are risking cross-talk
 // between tests and should instead modify your test.
 func DeleteObject(t *testing.T, c client.Client, original client.Object) func() {
+	_ = "STUB: not implemented"
 	// We don't want this cleanup method to rely on any context passed by the caller. For example, the caller may have
 	// canceled their context as part of their test.
-	ctx := context.Background()
-
-	objCopy := original.DeepCopyObject()
-	obj, ok := objCopy.(client.Object)
-	if !ok {
-		t.Fatalf("got DeepCopyObject(%T) = %T, which is not a client.Object", original, objCopy)
-	}
-
-	return func() {
-		err := c.Delete(ctx, obj)
-		if err != nil && !apierrors.IsNotFound(err) {
-			t.Errorf("cleaning up %v %v/%v: %v",
-				obj.GetObjectKind().GroupVersionKind(),
-				obj.GetNamespace(), obj.GetName(), err)
-		}
-	}
+	return nil
 }

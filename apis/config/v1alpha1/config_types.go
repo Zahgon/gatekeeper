@@ -65,11 +65,8 @@ type SyncOnlyEntry struct {
 }
 
 func (e *SyncOnlyEntry) ToGroupVersionKind() schema.GroupVersionKind {
-	return schema.GroupVersionKind{
-		Group:   e.Group,
-		Version: e.Version,
-		Kind:    e.Kind,
-	}
+	_ = "STUB: not implemented"
+	return *new(schema.GroupVersionKind)
 }
 
 type MatchEntry struct {

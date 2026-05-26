@@ -1,13 +1,8 @@
 package testhelpers
 
 import (
-	"reflect"
-	"strings"
-
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/match"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/mutators/core"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/path/parser"
-	path "github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/path/tester"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/types"
 )
 
@@ -22,52 +17,36 @@ type DummyMutator struct {
 }
 
 func (d *DummyMutator) DeepCopy() types.Mutator {
-	return d
+	_ = "STUB: not implemented"
+	return *new(types.Mutator)
 }
 
-func (d *DummyMutator) HasDiff(m types.Mutator) bool {
-	return !reflect.DeepEqual(d, m)
-}
+func (d *DummyMutator) HasDiff(m types.Mutator) bool { _ = "STUB: not implemented"; return false }
 
-func (d *DummyMutator) ID() types.ID {
-	return types.ID{Group: "mutators.gatekeeper.sh", Kind: "DummyMutator", Name: d.name}
-}
+func (d *DummyMutator) ID() types.ID { _ = "STUB: not implemented"; return *new(types.ID) }
 
-func (d *DummyMutator) Path() parser.Path {
-	return d.path
-}
+func (d *DummyMutator) Path() parser.Path { _ = "STUB: not implemented"; return *new(parser.Path) }
 
 func (d *DummyMutator) Matches(mutable *types.Mutable) (bool, error) {
-	m := &match.Matchable{Object: mutable.Object, Namespace: mutable.Namespace}
-	matches, err := match.Matches(&d.match, m)
-	if err != nil {
-		return false, err
-	}
-	return matches, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 func (d *DummyMutator) Mutate(mutable *types.Mutable) (bool, error) {
-	t, _ := path.New(parser.Path{}, nil)
-	return core.Mutate(d.Path(), t, core.NewDefaultSetter(d.value), mutable.Object)
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
-func (d *DummyMutator) MustTerminate() bool {
-	return false
-}
+func (d *DummyMutator) MustTerminate() bool { _ = "STUB: not implemented"; return false }
 
-func (d *DummyMutator) String() string {
-	return ""
-}
+func (d *DummyMutator) String() string { _ = "STUB: not implemented"; return "" }
 
 func NewDummyMutator(name, path string, value interface{}) *DummyMutator {
-	p, err := parser.Parse(path)
-	if err != nil {
-		panic(err)
-	}
-	return &DummyMutator{name: name, path: p, value: value}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // BigName returns a 64-length string.
-func BigName() string {
-	return strings.Repeat("abigname", 8) // 8 X 8 = 64
-}
+func BigName() string { _ = "STUB: not implemented"; return "" }
+
+// 8 X 8 = 64

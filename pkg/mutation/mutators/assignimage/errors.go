@@ -1,16 +1,16 @@
 package assignimage
 
-import "fmt"
-
 type baseError struct {
 	s string
 }
 
 func (e baseError) Error() string {
-	return e.s
+	_ = "STUB: not implemented"
+
+	// Component field (domain|path|tag) errors.
+	return ""
 }
 
-// Component field (domain|path|tag) errors.
 type invalidDomainError struct{ baseError }
 
 type (
@@ -27,57 +27,36 @@ type (
 )
 
 func newInvalidDomainError(domain string) invalidDomainError {
-	return invalidDomainError{
-		baseError{
-			fmt.Sprintf("assignDomain %q must be a fully-qualified domain name or localhost", domain),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(invalidDomainError)
 }
 
 func newInvalidPathError(path string) invalidPathError {
-	return invalidPathError{
-		baseError{
-			fmt.Sprintf("assignPath %q must be a valid docker image path", path),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(invalidPathError)
 }
 
 func newInvalidTagError(tag string) invalidTagError {
-	return invalidTagError{
-		baseError{
-			fmt.Sprintf("assignTag %q must be a valid docker image tag or digest starting with ':' or '@'", tag),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(invalidTagError)
 }
 
 func newMissingComponentsError() missingComponentsError {
-	return missingComponentsError{
-		baseError{
-			"at least one of [assignDomain, assignPath, assignTag] must be set",
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(missingComponentsError)
 }
 
 func newDomainLikePathError(path string) domainLikePathError {
-	return domainLikePathError{
-		baseError{
-			fmt.Sprintf("assignDomain must be set if the first part of assignPath %q can be interpretted as part of a domain", path),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(domainLikePathError)
 }
 
 func newListTerminalError(name string) listTerminalError {
-	return listTerminalError{
-		baseError{
-			fmt.Sprintf("assignImage %s cannot mutate list-type fields", name),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(listTerminalError)
 }
 
 func newMetadataRootError(name string) metadataRootError {
-	return metadataRootError{
-		baseError{
-			fmt.Sprintf("assignImage %s can't change metadata", name),
-		},
-	}
+	_ = "STUB: not implemented"
+	return *new(metadataRootError)
 }

@@ -1,16 +1,10 @@
 package schema
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/open-policy-agent/frameworks/constraint/pkg/core/templates"
 	admissionv1 "k8s.io/api/admissionregistration/v1"
 	admissionv1beta1 "k8s.io/api/admissionregistration/v1beta1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/admission/plugin/cel"
-	"k8s.io/apiserver/pkg/admission/plugin/policy/validating"
-	"k8s.io/apiserver/pkg/admission/plugin/webhook/matchconditions"
 )
 
 const (
@@ -60,249 +54,71 @@ type Source struct {
 	GenerateVAP *bool `json:"generateVAP,omitempty"`
 }
 
-func (in *Source) Validate() error {
-	if err := in.validateMatchConditions(); err != nil {
-		return err
-	}
-	if err := in.validateVariables(); err != nil {
-		return err
-	}
-	if _, err := in.GetFailurePolicy(); err != nil {
-		return err
-	}
+func (in *Source) Validate() error { _ = "STUB: not implemented"; return nil }
 
-	return nil
-}
-
-func (in *Source) validateMatchConditions() error {
-	for _, condition := range in.MatchConditions {
-		if strings.HasPrefix(condition.Name, ReservedPrefix) {
-			return fmt.Errorf("%w: %s is not a valid match condition; cannot have %q as a prefix", ErrBadMatchCondition, condition.Name, ReservedPrefix)
-		}
-	}
-	return nil
-}
+func (in *Source) validateMatchConditions() error { _ = "STUB: not implemented"; return nil }
 
 func (in *Source) GetMatchConditions() ([]cel.ExpressionAccessor, error) {
-	if err := in.validateMatchConditions(); err != nil {
-		return nil, err
-	}
-
-	matchConditions := make([]cel.ExpressionAccessor, len(in.MatchConditions))
-	for i, mc := range in.MatchConditions {
-		matchConditions[i] = &matchconditions.MatchCondition{
-			Name:       mc.Name,
-			Expression: mc.Expression,
-		}
-	}
-	return matchConditions, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (in *Source) GetV1Beta1MatchConditions() ([]admissionv1beta1.MatchCondition, error) {
-	if err := in.validateMatchConditions(); err != nil {
-		return nil, err
-	}
-
-	var matchConditions []admissionv1beta1.MatchCondition
-	for _, mc := range in.MatchConditions {
-		matchConditions = append(matchConditions, admissionv1beta1.MatchCondition{
-			Name:       mc.Name,
-			Expression: mc.Expression,
-		})
-	}
-	return matchConditions, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (in *Source) validateVariables() error {
-	for _, v := range in.Variables {
-		if strings.HasPrefix(v.Name, ReservedPrefix) {
-			return fmt.Errorf("%w: %s is not a valid variable; cannot have %q as a prefix", ErrBadVariable, v.Name, ReservedPrefix)
-		}
-		if v.Name == ParamsName {
-			return fmt.Errorf("%w: %s an invalid variable name, %q is a reserved keyword", ErrBadVariable, ParamsName, ParamsName)
-		}
-		if v.Name == ObjectName {
-			return fmt.Errorf("%w: %s an invalid variable name, %q is a reserved keyword", ErrBadVariable, ObjectName, ObjectName)
-		}
-	}
-	return nil
-}
+func (in *Source) validateVariables() error { _ = "STUB: not implemented"; return nil }
 
 func (in *Source) GetVariables() ([]cel.NamedExpressionAccessor, error) {
-	if err := in.validateVariables(); err != nil {
-		return nil, err
-	}
-
-	vars := make([]cel.NamedExpressionAccessor, len(in.Variables))
-	for i, v := range in.Variables {
-		vars[i] = &validating.Variable{
-			Name:       v.Name,
-			Expression: v.Expression,
-		}
-	}
-
-	return vars, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (in *Source) GetV1Beta1Variables() ([]admissionv1beta1.Variable, error) {
-	if err := in.validateVariables(); err != nil {
-		return nil, err
-	}
-
-	var variables []admissionv1beta1.Variable
-	for _, v := range in.Variables {
-		variables = append(variables, admissionv1beta1.Variable{
-			Name:       v.Name,
-			Expression: v.Expression,
-		})
-	}
-	return variables, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (in *Source) GetValidations() ([]cel.ExpressionAccessor, error) {
-	validations := make([]cel.ExpressionAccessor, len(in.Validations))
-	for i, validation := range in.Validations {
-		celValidation := validating.ValidationCondition{
-			Expression: validation.Expression,
-			Message:    validation.Message,
-		}
-		validations[i] = &celValidation
-	}
-	return validations, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (in *Source) GetV1Beta1Validatons() ([]admissionv1beta1.Validation, error) {
-	var validations []admissionv1beta1.Validation
-	for _, v := range in.Validations {
-		validations = append(validations, admissionv1beta1.Validation{
-			Expression:        v.Expression,
-			Message:           v.Message,
-			MessageExpression: v.MessageExpression,
-		})
-	}
-	return validations, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (in *Source) GetMessageExpressions() ([]cel.ExpressionAccessor, error) {
-	messageExpressions := make([]cel.ExpressionAccessor, len(in.Validations))
-	for i, validation := range in.Validations {
-		if validation.MessageExpression != "" {
-			condition := validating.MessageExpressionCondition{
-				MessageExpression: validation.MessageExpression,
-			}
-			messageExpressions[i] = &condition
-		}
-	}
-	return messageExpressions, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (in *Source) GetFailurePolicy() (*admissionv1.FailurePolicyType, error) {
-	if in.FailurePolicy == nil {
-		return nil, nil
-	}
-
-	var out admissionv1.FailurePolicyType
-
-	switch *in.FailurePolicy {
-	case string(admissionv1.Fail):
-		out = admissionv1.Fail
-	case string(admissionv1.Ignore):
-		out = admissionv1.Ignore
-	default:
-		return nil, fmt.Errorf("%w: unrecognized failure policy: %s", ErrBadFailurePolicy, *in.FailurePolicy)
-	}
-
-	return &out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (in *Source) GetV1Beta1FailurePolicy() (*admissionv1beta1.FailurePolicyType, error) {
-	var out admissionv1beta1.FailurePolicyType
-	if in.FailurePolicy == nil {
-		out = admissionv1beta1.Fail
-		return &out, nil
-	}
-
-	switch *in.FailurePolicy {
-	case string(admissionv1.Fail):
-		out = admissionv1beta1.Fail
-	case string(admissionv1.Ignore):
-		out = admissionv1beta1.Ignore
-	default:
-		return nil, fmt.Errorf("%w: unrecognized failure policy: %s", ErrBadFailurePolicy, *in.FailurePolicy)
-	}
-
-	return &out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // MustToUnstructured() is a convenience method for converting to unstructured.
 // Intended for testing. It will panic on error.
 func (in *Source) MustToUnstructured() map[string]interface{} {
-	if in == nil {
-		return nil
-	}
-
-	out, err := runtime.DefaultUnstructuredConverter.ToUnstructured(in)
-	if err != nil {
-		panic(fmt.Errorf("cannot cast as unstructured: %w", err))
-	}
-
-	return out
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func GetSource(code templates.Code) (*Source, error) {
-	rawCode := code.Source
-	v, ok := rawCode.Value.(map[string]interface{})
-	if !ok {
-		return nil, ErrBadType
-	}
-
-	out := &Source{}
-
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(v, out); err != nil {
-		return nil, err
-	}
-
-	if err := out.Validate(); err != nil {
-		return nil, err
-	}
-
-	return out, nil
-}
+func GetSource(code templates.Code) (*Source, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func GetSourceFromTemplate(ct *templates.ConstraintTemplate) (*Source, error) {
-	if len(ct.Spec.Targets) != 1 {
-		return nil, ErrOneTargetAllowed
-	}
-
-	var source *Source
-	for _, code := range ct.Spec.Targets[0].Code {
-		if code.Engine != Name {
-			continue
-		}
-		var err error
-		source, err = GetSource(code)
-		if err != nil {
-			return nil, err
-		}
-		break
-	}
-	if source == nil {
-		return nil, ErrCELEngineMissing
-	}
-
-	return source, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // HasCELEngine checks if the ConstraintTemplate has a CEL engine code block,
 // without validating the source content.
-func HasCELEngine(ct *templates.ConstraintTemplate) bool {
-	if len(ct.Spec.Targets) != 1 {
-		return false
-	}
-	for _, code := range ct.Spec.Targets[0].Code {
-		if code.Engine == Name {
-			return true
-		}
-	}
-	return false
-}
+func HasCELEngine(ct *templates.ConstraintTemplate) bool { _ = "STUB: not implemented"; return false }

@@ -1,13 +1,10 @@
 package v1beta1
 
 import (
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/operations"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 // ExpansionTemplatePodStatusStatus defines the observed state of ExpansionTemplatePodStatus.
@@ -55,32 +52,15 @@ func init() {
 // that has been initialized with the bare minimum of fields to make it functional
 // with the expansion template status controller.
 func NewExpansionTemplateStatusForPod(pod *corev1.Pod, templateName string, scheme *runtime.Scheme) (*ExpansionTemplatePodStatus, error) {
-	obj := &ExpansionTemplatePodStatus{}
-	name, err := KeyForExpansionTemplate(pod.Name, templateName)
-	if err != nil {
-		return nil, err
-	}
-	obj.SetName(name)
-	obj.SetNamespace(util.GetNamespace())
-	obj.Status.ID = pod.Name
-	obj.Status.Operations = operations.AssignedStringList()
-	obj.SetLabels(map[string]string{
-		ExpansionTemplateNameLabel: templateName,
-		PodLabel:                   pod.Name,
-	})
-
-	// Skip OwnerReference in remote cluster mode
-	if !util.ShouldSkipPodOwnerRef() {
-		if err := controllerutil.SetOwnerReference(pod, obj, scheme); err != nil {
-			return nil, err
-		}
-	}
-
-	return obj, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Skip OwnerReference in remote cluster mode
 
 // KeyForExpansionTemplate returns a unique status object name given the Pod ID and
 // a template object.
 func KeyForExpansionTemplate(id string, templateName string) (string, error) {
-	return DashPacker(id, templateName)
+	_ = "STUB: not implemented"
+	return "", nil
 }

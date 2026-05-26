@@ -2,12 +2,7 @@ package test
 
 import (
 	"fmt"
-	"os"
-	"strings"
 
-	cmdutils "github.com/open-policy-agent/gatekeeper/v3/cmd/gator/util"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/gator/reader"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/gator/sync/test"
 	"github.com/spf13/cobra"
 )
 
@@ -39,35 +34,6 @@ func init() {
 	Cmd.Flags().StringVarP(&flagTempDir, flagNameTempDir, "d", "", fmt.Sprintf("Specifies the temporary directory to download and unpack images to, if using the --%s flag. Optional.", flagNameImage))
 }
 
-func run(_ *cobra.Command, _ []string) {
-	unstrucs, err := reader.ReadSources(flagFilenames, flagImages, flagTempDir)
-	if err != nil {
-		cmdutils.ErrFatalf("reading: %v", err)
-	}
-	if len(unstrucs) == 0 {
-		cmdutils.ErrFatalf("no input data identified")
-	}
+func run(_ *cobra.Command, _ []string) { _ = "STUB: not implemented"; return }
 
-	missingRequirements, templateErrors, err := test.Test(unstrucs, flagOmitGVKManifest)
-	if err != nil {
-		cmdutils.ErrFatalf("checking: %v", err)
-	}
-
-	if len(missingRequirements) > 0 {
-		cmdutils.ErrFatalf("the following requirements were not met: \n%v", resultsToString(missingRequirements))
-	}
-
-	if len(templateErrors) > 0 {
-		cmdutils.ErrFatalf("encountered errors parsing the following templates: \n%v", resultsToString(templateErrors))
-	}
-
-	os.Exit(0)
-}
-
-func resultsToString[T any](results map[string]T) string {
-	var sb strings.Builder
-	for template, vals := range results {
-		sb.WriteString(fmt.Sprintf("%s:\n%v\n", template, vals))
-	}
-	return sb.String()
-}
+func resultsToString[T any](results map[string]T) string { _ = "STUB: not implemented"; return "" }

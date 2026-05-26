@@ -11,14 +11,6 @@ type Result struct {
 }
 
 func ToResults(obj *unstructured.Unstructured, resp *types.Responses) []Result {
-	var results []Result
-
-	for _, r := range resp.Results() {
-		results = append(results, Result{
-			Result: r,
-			obj:    obj,
-		})
-	}
-
-	return results
+	_ = "STUB: not implemented"
+	return nil
 }

@@ -2,24 +2,16 @@ package syncset
 
 import (
 	"context"
-	"fmt"
 
 	syncsetv1alpha1 "github.com/open-policy-agent/gatekeeper/v3/apis/syncset/v1alpha1"
 	cm "github.com/open-policy-agent/gatekeeper/v3/pkg/cachemanager"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/cachemanager/aggregator"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/logging"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/operations"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/readiness"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
 const (
@@ -38,56 +30,18 @@ type Adder struct {
 }
 
 // Add creates a new controller for SyncSets and adds it to the Manager.
-func (a *Adder) Add(mgr manager.Manager) error {
-	if !operations.HasValidationOperations() {
-		return nil
-	}
+func (a *Adder) Add(mgr manager.Manager) error { _ = "STUB: not implemented"; return nil }
 
-	r, err := newReconciler(mgr, a.CacheManager, a.Tracker)
-	if err != nil {
-		return err
-	}
+func (a *Adder) InjectCacheManager(o *cm.CacheManager) { _ = "STUB: not implemented"; return }
 
-	return add(mgr, r)
-}
-
-func (a *Adder) InjectCacheManager(o *cm.CacheManager) {
-	a.CacheManager = o
-}
-
-func (a *Adder) InjectTracker(t *readiness.Tracker) {
-	a.Tracker = t
-}
+func (a *Adder) InjectTracker(t *readiness.Tracker) { _ = "STUB: not implemented"; return }
 
 func newReconciler(mgr manager.Manager, cm *cm.CacheManager, tracker *readiness.Tracker) (*ReconcileSyncSet, error) {
-	if cm == nil {
-		return nil, fmt.Errorf("CacheManager must be non-nil")
-	}
-	if tracker == nil {
-		return nil, fmt.Errorf("ReadyTracker must be non-nil")
-	}
-
-	return &ReconcileSyncSet{
-		reader:       mgr.GetClient(),
-		scheme:       mgr.GetScheme(),
-		cacheManager: cm,
-		tracker:      tracker,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func add(mgr manager.Manager, r reconcile.Reconciler) error {
-	c, err := controller.New(ctrlName, mgr, controller.Options{Reconciler: r})
-	if err != nil {
-		return err
-	}
-
-	err = c.Watch(source.Kind(mgr.GetCache(), &syncsetv1alpha1.SyncSet{}, &handler.TypedEnqueueRequestForObject[*syncsetv1alpha1.SyncSet]{}))
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
+func add(mgr manager.Manager, r reconcile.Reconciler) error { _ = "STUB: not implemented"; return nil }
 
 var _ reconcile.Reconciler = &ReconcileSyncSet{}
 
@@ -101,44 +55,10 @@ type ReconcileSyncSet struct {
 }
 
 func (r *ReconcileSyncSet) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
-	syncsetTr := r.tracker.For(syncsetGVK)
-	exists := true
-	syncset := &syncsetv1alpha1.SyncSet{}
-	err := r.reader.Get(ctx, request.NamespacedName, syncset)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			exists = false
-		} else {
-			// Error reading the object - requeue the request.
-			return reconcile.Result{}, err
-		}
-	}
-	// Directly accessing the NamespaceName.String(), as NamespaceName is embedded within reconcile.Request.
-	sk := aggregator.Key{Source: "syncset", ID: request.String()}
-
-	if !exists || !syncset.GetDeletionTimestamp().IsZero() {
-		log.V(logging.DebugLevel).Info("handling SyncSet delete", "instance", syncset)
-
-		if err := r.cacheManager.RemoveSource(ctx, sk); err != nil {
-			syncsetTr.TryCancelExpect(syncset)
-			return reconcile.Result{}, fmt.Errorf("syncset-controller: error removing source: %w", err)
-		}
-
-		syncsetTr.CancelExpect(syncset)
-		return reconcile.Result{}, nil
-	}
-
-	log.V(logging.DebugLevel).Info("handling SyncSet update", "instance", syncset)
-	gvks := []schema.GroupVersionKind{}
-	for _, entry := range syncset.Spec.GVKs {
-		gvks = append(gvks, entry.ToGroupVersionKind())
-	}
-
-	if err := r.cacheManager.UpsertSource(ctx, sk, gvks); err != nil {
-		syncsetTr.TryCancelExpect(syncset)
-		return reconcile.Result{Requeue: true}, fmt.Errorf("syncset-controller: error upserting watches: %w", err)
-	}
-
-	syncsetTr.Observe(syncset)
-	return reconcile.Result{}, nil
+	_ = "STUB: not implemented"
+	return *new(reconcile.Result), nil
 }
+
+// Error reading the object - requeue the request.
+
+// Directly accessing the NamespaceName.String(), as NamespaceName is embedded within reconcile.Request.

@@ -15,6 +15,4 @@ func init() {
 	}
 }
 
-func GetTestScheme() *runtime.Scheme {
-	return testScheme
-}
+func GetTestScheme() *runtime.Scheme { _ = "STUB: not implemented"; return nil }

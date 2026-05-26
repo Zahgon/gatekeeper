@@ -11,11 +11,7 @@ const (
 )
 
 // IsYAMLExtension returns true if the extension is a valid YAML extension.
-func IsYAMLExtension(ext string) bool {
-	return ext == ExtYAML || ext == ExtYML
-}
+func IsYAMLExtension(ext string) bool { _ = "STUB: not implemented"; return false }
 
 // IsSupportedExtension returns true if the extension is supported (YAML or JSON).
-func IsSupportedExtension(ext string) bool {
-	return ext == ExtYAML || ext == ExtYML || ext == ExtJSON
-}
+func IsSupportedExtension(ext string) bool { _ = "STUB: not implemented"; return false }

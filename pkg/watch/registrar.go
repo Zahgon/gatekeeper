@@ -17,8 +17,6 @@ package watch
 
 import (
 	"context"
-	"fmt"
-	"sort"
 	"sync"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -32,22 +30,7 @@ type vitals struct {
 
 type vitalsByGVK map[schema.GroupVersionKind]vitals
 
-func (w *vitals) merge(wv vitals) vitals {
-	if w == nil {
-		return wv
-	}
-	registrars := make(map[*Registrar]bool)
-	for r := range w.registrars {
-		registrars[r] = true
-	}
-	for r := range wv.registrars {
-		registrars[r] = true
-	}
-	return vitals{
-		gvk:        w.gvk,
-		registrars: registrars,
-	}
-}
+func (w *vitals) merge(wv vitals) vitals { _ = "STUB: not implemented"; return *new(vitals) }
 
 // recordKeeper holds the source of truth for the intended state of the manager
 // This is essentially a read/write lock on the wrapped map (the `intent` variable).
@@ -61,155 +44,47 @@ type recordKeeper struct {
 }
 
 func (r *recordKeeper) NewRegistrar(parentName string, events chan<- event.GenericEvent) (*Registrar, error) {
-	r.intentMux.Lock()
-	defer r.intentMux.Unlock()
-	if _, ok := r.registrars[parentName]; ok {
-		return nil, fmt.Errorf("registrar for %s already exists", parentName)
-	}
-	out := &Registrar{
-		parentName:   parentName,
-		mgr:          r.mgr,
-		managedKinds: r,
-		events:       events,
-	}
-	r.registrars[parentName] = out
-	return out, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // RemoveRegistrar removes a registrar and all its watches.
 func (r *recordKeeper) RemoveRegistrar(parentName string) error {
-	r.intentMux.Lock()
-	registrar := r.registrars[parentName]
-	r.intentMux.Unlock()
-
-	if registrar == nil {
-		return nil
-	}
-	if err := registrar.ReplaceWatch(context.Background(), nil); err != nil {
-		return err
-	}
-
-	r.intentMux.Lock()
-	defer r.intentMux.Unlock()
-	delete(r.registrars, parentName)
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (r *recordKeeper) Update(parentName string, m vitalsByGVK) {
-	r.intentMux.Lock()
-	defer r.intentMux.Unlock()
-
-	defer func() {
-		if err := r.metrics.reportGvkIntentCount(int64(r.count())); err != nil {
-			log.Error(err, "while reporting gvk intent count metric")
-		}
-	}()
-
-	if _, ok := r.intent[parentName]; !ok {
-		r.intent[parentName] = make(vitalsByGVK)
-	}
-	for gvk, v := range m {
-		r.intent[parentName][gvk] = v
-	}
-}
+func (r *recordKeeper) Update(parentName string, m vitalsByGVK) { _ = "STUB: not implemented"; return }
 
 // ReplaceRegistrarRoster replaces the desired set of watches for the specified registrar using provided roster.
 // Ownership is taken over roster - it is not currently deep-copied.
 func (r *recordKeeper) ReplaceRegistrarRoster(reg *Registrar, roster map[schema.GroupVersionKind]vitals) {
-	r.intentMux.Lock()
-	defer r.intentMux.Unlock()
-	defer func() {
-		if err := r.metrics.reportGvkIntentCount(int64(r.count())); err != nil {
-			log.Error(err, "while reporting gvk intent count metric")
-		}
-	}()
-
-	r.intent[reg.parentName] = roster
+	_ = "STUB: not implemented"
+	return
 }
 
 // Watching returns whether a GVK is being watched by a given registrar.
 func (r *recordKeeper) Watching(parentName string, gvk schema.GroupVersionKind) bool {
-	r.intentMux.RLock()
-	defer r.intentMux.RUnlock()
-	_, ok := r.intent[parentName][gvk]
-	return ok
+	_ = "STUB: not implemented"
+	return false
 }
 
 // Remove removes the intent-to-watch a particular resource kind.
 func (r *recordKeeper) Remove(parentName string, gvk schema.GroupVersionKind) {
-	r.intentMux.Lock()
-	defer r.intentMux.Unlock()
-	defer func() {
-		if err := r.metrics.reportGvkIntentCount(int64(r.count())); err != nil {
-			log.Error(err, "while reporting gvk intent count metric")
-		}
-	}()
-
-	delete(r.intent[parentName], gvk)
+	_ = "STUB: not implemented"
+	return
 }
 
 // Get returns all managed vitals, merged across registrars.
-func (r *recordKeeper) Get() vitalsByGVK {
-	r.intentMux.RLock()
-	defer r.intentMux.RUnlock()
-	cpy := make(map[string]vitalsByGVK)
-	for k := range r.intent {
-		cpy[k] = make(vitalsByGVK)
-		for k2, v := range r.intent[k] {
-			cpy[k][k2] = v
-		}
-	}
-	managedKinds := make(vitalsByGVK)
-	for _, registrar := range cpy {
-		for gvk, v := range registrar {
-			if mk, ok := managedKinds[gvk]; ok {
-				merged := mk.merge(v)
-				managedKinds[gvk] = merged
-			} else {
-				managedKinds[gvk] = v
-			}
-		}
-	}
-	return managedKinds
-}
+func (r *recordKeeper) Get() vitalsByGVK { _ = "STUB: not implemented"; return *new(vitalsByGVK) }
 
 // count returns total gvk count across all registrars.
-func (r *recordKeeper) count() int {
-	managedKinds := make(map[schema.GroupVersionKind]bool)
-	for _, registrar := range r.intent {
-		for gvk := range registrar {
-			managedKinds[gvk] = true
-		}
-	}
-	return len(managedKinds)
-}
+func (r *recordKeeper) count() int { _ = "STUB: not implemented"; return 0 }
 
 // GetGVK returns all managed kinds, merged across registrars.
-func (r *recordKeeper) GetGVK() []schema.GroupVersionKind {
-	var gvks []schema.GroupVersionKind
+func (r *recordKeeper) GetGVK() []schema.GroupVersionKind { _ = "STUB: not implemented"; return nil }
 
-	g := r.Get()
-	for gvk := range g {
-		gvks = append(gvks, gvk)
-	}
-
-	sort.Slice(gvks, func(i, j int) bool {
-		return gvks[i].String() < gvks[j].String()
-	})
-	return gvks
-}
-
-func newRecordKeeper() (*recordKeeper, error) {
-	metrics, err := newStatsReporter()
-	if err != nil {
-		return nil, err
-	}
-	return &recordKeeper{
-		intent:     make(map[string]vitalsByGVK),
-		registrars: make(map[string]*Registrar),
-		metrics:    metrics,
-	}, nil
-}
+func newRecordKeeper() (*recordKeeper, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // A Registrar allows a parent to add/remove child watches.
 type Registrar struct {
@@ -229,49 +104,27 @@ type Registrar struct {
 //
 // XXXX also may block if the watch manager has not been started.
 func (r *Registrar) AddWatch(ctx context.Context, gvk schema.GroupVersionKind) error {
-	r.mux.Lock()
-	defer r.mux.Unlock()
-	wv := vitals{
-		gvk:        gvk,
-		registrars: map[*Registrar]bool{r: true},
-	}
-	r.managedKinds.Update(r.parentName, vitalsByGVK{gvk: wv})
-	return r.mgr.addWatch(ctx, r, gvk)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ReplaceWatch replaces the set of watched resources.
 func (r *Registrar) ReplaceWatch(ctx context.Context, gvks []schema.GroupVersionKind) error {
-	r.mux.Lock()
-	defer r.mux.Unlock()
-	roster := make(vitalsByGVK)
-	for _, gvk := range gvks {
-		wv := vitals{
-			gvk:        gvk,
-			registrars: map[*Registrar]bool{r: true},
-		}
-		roster[gvk] = wv
-	}
-	r.managedKinds.ReplaceRegistrarRoster(r, roster)
-	return r.mgr.replaceWatches(ctx, r)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RemoveWatch removes a watch for the given kind.
 // Ignores the request if the kind was not previously watched.
 func (r *Registrar) RemoveWatch(ctx context.Context, gvk schema.GroupVersionKind) error {
-	r.mux.Lock()
-	defer r.mux.Unlock()
-	r.managedKinds.Remove(r.parentName, gvk)
-	return r.mgr.removeWatch(ctx, r, gvk)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // IfWatching executes the passed function if the provided GVK is being watched
 // by the registrar, ignoring it if not. It returns whether the function was
 // executed and any errors returned by the executed function.
 func (r *Registrar) IfWatching(gvk schema.GroupVersionKind, fn func() error) (bool, error) {
-	r.mux.RLock()
-	defer r.mux.RUnlock()
-	if r.managedKinds.Watching(r.parentName, gvk) {
-		return true, fn()
-	}
+	_ = "STUB: not implemented"
 	return false, nil
 }

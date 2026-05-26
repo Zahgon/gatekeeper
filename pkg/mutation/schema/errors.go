@@ -1,9 +1,6 @@
 package schema
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 )
 
@@ -11,9 +8,7 @@ import (
 // a nil pointer.
 const ErrNilMutator = util.Error("attempted to add nil mutator")
 
-func NewErrConflictingSchema(ids IDSet) error {
-	return ErrConflictingSchema{Conflicts: ids}
-}
+func NewErrConflictingSchema(ids IDSet) error { _ = "STUB: not implemented"; return nil }
 
 const ErrConflictingSchemaType = "ErrConflictingSchema"
 
@@ -23,26 +18,6 @@ type ErrConflictingSchema struct {
 	Conflicts IDSet
 }
 
-func (e ErrConflictingSchema) Error() string {
-	return fmt.Sprintf("the following mutators have conflicting schemas: %v",
-		e.Conflicts.String())
-}
+func (e ErrConflictingSchema) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (e ErrConflictingSchema) Is(other error) bool {
-	var o ErrConflictingSchema
-	if !errors.As(other, &o) {
-		return false
-	}
-
-	if len(e.Conflicts) != len(o.Conflicts) {
-		return false
-	}
-
-	for id := range e.Conflicts {
-		if !o.Conflicts[id] {
-			return false
-		}
-	}
-
-	return true
-}
+func (e ErrConflictingSchema) Is(other error) bool { _ = "STUB: not implemented"; return false }

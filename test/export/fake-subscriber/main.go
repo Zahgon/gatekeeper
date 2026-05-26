@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"os"
-	"strconv"
 
 	"github.com/dapr/go-sdk/service/common"
 	daprd "github.com/dapr/go-sdk/service/http"
@@ -52,15 +50,6 @@ func main() {
 }
 
 func eventHandler(_ context.Context, e *common.TopicEvent) (retry bool, err error) {
-	var msg ExportMsg
-	jsonInput, err := strconv.Unquote(string(e.RawData))
-	if err != nil {
-		log.Fatalf("error unquoting %v", err)
-	}
-	if err := json.Unmarshal([]byte(jsonInput), &msg); err != nil {
-		log.Fatalf("error %v", err)
-	}
-
-	log.Printf("%#v", msg)
+	_ = "STUB: not implemented"
 	return false, nil
 }

@@ -1,13 +1,8 @@
 package transform
 
 import (
-	"fmt"
-
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/drivers/k8scel/schema"
 	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
 	"k8s.io/apiserver/pkg/admission/plugin/cel"
-	"k8s.io/apiserver/pkg/admission/plugin/policy/validating"
-	"k8s.io/apiserver/pkg/admission/plugin/webhook/matchconditions"
 )
 
 const (
@@ -130,133 +125,69 @@ const (
 )
 
 func MatchExcludedNamespacesGlobV1Beta1() admissionregistrationv1beta1.MatchCondition {
-	return admissionregistrationv1beta1.MatchCondition{
-		Name:       "gatekeeper_internal_match_excluded_namespaces",
-		Expression: matchExcludedNamespacesGlob,
-	}
+	_ = "STUB: not implemented"
+	return *new(admissionregistrationv1beta1.MatchCondition)
 }
 
 func MatchGlobalExcludedNamespacesGlobV1Beta1(excludedNamespaces string) admissionregistrationv1beta1.MatchCondition {
-	return admissionregistrationv1beta1.MatchCondition{
-		Name:       "gatekeeper_internal_match_global_excluded_namespaces",
-		Expression: fmt.Sprintf(matchGlobalExcludedNamespacesGlob, excludedNamespaces, excludedNamespaces),
-	}
+	_ = "STUB: not implemented"
+	return *new(admissionregistrationv1beta1.MatchCondition)
 }
 
 func MatchGlobalExemptedNamespacesGlobV1Beta1(exemptedNamespaces string) admissionregistrationv1beta1.MatchCondition {
-	return admissionregistrationv1beta1.MatchCondition{
-		Name:       "gatekeeper_internal_match_global_exempted_namespaces",
-		Expression: fmt.Sprintf(matchGlobalExemptedNamespacesGlob, exemptedNamespaces, exemptedNamespaces),
-	}
+	_ = "STUB: not implemented"
+	return *new(admissionregistrationv1beta1.MatchCondition)
 }
 
 func MatchExcludedNamespacesGlobCEL() []cel.ExpressionAccessor {
-	mc := MatchExcludedNamespacesGlobV1Beta1()
-	return []cel.ExpressionAccessor{
-		&matchconditions.MatchCondition{
-			Name:       mc.Name,
-			Expression: mc.Expression,
-		},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func MatchNamespacesGlobV1Beta1() admissionregistrationv1beta1.MatchCondition {
-	return admissionregistrationv1beta1.MatchCondition{
-		Name:       "gatekeeper_internal_match_namespaces",
-		Expression: matchNamespacesGlob,
-	}
+	_ = "STUB: not implemented"
+	return *new(admissionregistrationv1beta1.MatchCondition)
 }
 
-func MatchNamespacesGlobCEL() []cel.ExpressionAccessor {
-	mc := MatchNamespacesGlobV1Beta1()
-	return []cel.ExpressionAccessor{
-		&matchconditions.MatchCondition{
-			Name:       mc.Name,
-			Expression: mc.Expression,
-		},
-	}
-}
+func MatchNamespacesGlobCEL() []cel.ExpressionAccessor { _ = "STUB: not implemented"; return nil }
 
 func MatchNameGlobV1Beta1() admissionregistrationv1beta1.MatchCondition {
-	return admissionregistrationv1beta1.MatchCondition{
-		Name:       "gatekeeper_internal_match_name",
-		Expression: matchNameGlob,
-	}
+	_ = "STUB: not implemented"
+	return *new(admissionregistrationv1beta1.MatchCondition)
 }
 
-func MatchNameGlobCEL() []cel.ExpressionAccessor {
-	mc := MatchNameGlobV1Beta1()
-	return []cel.ExpressionAccessor{
-		&matchconditions.MatchCondition{
-			Name:       mc.Name,
-			Expression: mc.Expression,
-		},
-	}
-}
+func MatchNameGlobCEL() []cel.ExpressionAccessor { _ = "STUB: not implemented"; return nil }
 
 func MatchKindsV1Beta1() admissionregistrationv1beta1.MatchCondition {
-	return admissionregistrationv1beta1.MatchCondition{
-		Name:       "gatekeeper_internal_match_kinds",
-		Expression: matchKinds,
-	}
+	_ = "STUB: not implemented"
+	return *new(admissionregistrationv1beta1.MatchCondition)
 }
 
-func MatchKindsCEL() []cel.ExpressionAccessor {
-	mc := MatchKindsV1Beta1()
-	return []cel.ExpressionAccessor{
-		&matchconditions.MatchCondition{
-			Name:       mc.Name,
-			Expression: mc.Expression,
-		},
-	}
-}
+func MatchKindsCEL() []cel.ExpressionAccessor { _ = "STUB: not implemented"; return nil }
 
 func BindParamsV1Beta1() admissionregistrationv1beta1.Variable {
-	return admissionregistrationv1beta1.Variable{
-		Name:       schema.ParamsName,
-		Expression: "!has(params.spec) ? null : !has(params.spec.parameters) ? null: params.spec.parameters",
-	}
+	_ = "STUB: not implemented"
+	return *new(admissionregistrationv1beta1.Variable)
 }
 
 func BindParamsCEL() cel.NamedExpressionAccessor {
-	v := BindParamsV1Beta1()
-	return &validating.Variable{
-		Name:       v.Name,
-		Expression: v.Expression,
-	}
+	_ = "STUB: not implemented"
+	return *new(cel.NamedExpressionAccessor)
 }
 
 func BindObjectV1Beta1() admissionregistrationv1beta1.Variable {
-	return admissionregistrationv1beta1.Variable{
-		Name:       schema.ObjectName,
-		Expression: `has(request.operation) && request.operation == "DELETE" && object == null ? oldObject : object`,
-	}
+	_ = "STUB: not implemented"
+	return *new(admissionregistrationv1beta1.Variable)
 }
 
 func AllMatchersV1Beta1() []admissionregistrationv1beta1.MatchCondition {
-	return []admissionregistrationv1beta1.MatchCondition{
-		MatchExcludedNamespacesGlobV1Beta1(),
-		MatchNamespacesGlobV1Beta1(),
-		MatchNameGlobV1Beta1(),
-		MatchKindsV1Beta1(),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func AllVariablesCEL() []cel.NamedExpressionAccessor {
-	vars := AllVariablesV1Beta1()
-	xform := make([]cel.NamedExpressionAccessor, len(vars))
-	for i := range vars {
-		xform[i] = &validating.Variable{
-			Name:       vars[i].Name,
-			Expression: vars[i].Expression,
-		}
-	}
-	return xform
-}
+func AllVariablesCEL() []cel.NamedExpressionAccessor { _ = "STUB: not implemented"; return nil }
 
 func AllVariablesV1Beta1() []admissionregistrationv1beta1.Variable {
-	return []admissionregistrationv1beta1.Variable{
-		BindObjectV1Beta1(),
-		BindParamsV1Beta1(),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

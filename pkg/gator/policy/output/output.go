@@ -1,7 +1,6 @@
 package output
 
 import (
-	"fmt"
 	"io"
 )
 
@@ -108,12 +107,6 @@ type Printer interface {
 // NewPrinter creates a new Printer for the given format.
 // Returns an error if the format is not recognized.
 func NewPrinter(format Format) (Printer, error) {
-	switch format {
-	case FormatJSON:
-		return &JSONPrinter{}, nil
-	case FormatTable, "":
-		return &TablePrinter{}, nil
-	default:
-		return nil, fmt.Errorf("invalid output format: %s (must be table or json)", format)
-	}
+	_ = "STUB: not implemented"
+	return *new(Printer), nil
 }

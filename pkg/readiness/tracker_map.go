@@ -29,128 +29,46 @@ type trackerMap struct {
 	fn          objDataFactory
 }
 
-func newTrackerMap(fn objDataFactory) *trackerMap {
-	if fn == nil {
-		fn = objDataFromFlags
-	}
-
-	return &trackerMap{
-		m:           make(map[schema.GroupVersionKind]*objectTracker),
-		removed:     make(map[schema.GroupVersionKind]struct{}),
-		tryCanceled: make(map[schema.GroupVersionKind]objData),
-		fn:          fn,
-	}
-}
+func newTrackerMap(fn objDataFactory) *trackerMap { _ = "STUB: not implemented"; return nil }
 
 // Has returns true if the map is tracking the requested resource kind.
-func (t *trackerMap) Has(gvk schema.GroupVersionKind) bool {
-	t.mu.RLock()
-	defer t.mu.RUnlock()
-
-	_, ok := t.m[gvk]
-	return ok
-}
+func (t *trackerMap) Has(gvk schema.GroupVersionKind) bool { _ = "STUB: not implemented"; return false }
 
 // Get returns an objectTracker for the requested resource kind.
 // A new one is created if the resource was not previously tracked.
 func (t *trackerMap) Get(gvk schema.GroupVersionKind) Expectations {
-	if entry := func() Expectations {
-		t.mu.RLock()
-		defer t.mu.RUnlock()
-
-		if _, ok := t.removed[gvk]; ok {
-			// Return a throwaway tracker if it was previously removed.
-			return noopExpectations{}
-		}
-		if e, ok := t.m[gvk]; ok {
-			return e
-		}
-		return nil // avoids https://golang.org/doc/faq#nil_error
-	}(); entry != nil {
-		return entry
-	}
-
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	// re-retrieve map entry in case it was added after releasing the read lock.
-	if e, ok := t.m[gvk]; ok {
-		return e
-	}
-	entry := newObjTracker(gvk, t.fn)
-	t.m[gvk] = entry
-	return entry
+	_ = "STUB: not implemented"
+	return *new(Expectations)
 }
+
+// Return a throwaway tracker if it was previously removed.
+
+// avoids https://golang.org/doc/faq#nil_error
+
+// re-retrieve map entry in case it was added after releasing the read lock.
 
 // Keys returns the resource kinds currently being tracked.
-func (t *trackerMap) Keys() []schema.GroupVersionKind {
-	t.mu.RLock()
-	defer t.mu.RUnlock()
-
-	out := make([]schema.GroupVersionKind, 0, len(t.m))
-	for k := range t.m {
-		out = append(out, k)
-	}
-	return out
-}
+func (t *trackerMap) Keys() []schema.GroupVersionKind { _ = "STUB: not implemented"; return nil }
 
 // Remove stops tracking a resource kind. It cannot be tracked again by the same map.
-func (t *trackerMap) Remove(gvk schema.GroupVersionKind) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
+func (t *trackerMap) Remove(gvk schema.GroupVersionKind) { _ = "STUB: not implemented"; return }
 
-	t.removeNoLock(gvk)
-}
-
-func (t *trackerMap) removeNoLock(gvk schema.GroupVersionKind) {
-	delete(t.m, gvk)
-	delete(t.tryCanceled, gvk)
-
-	t.removed[gvk] = struct{}{}
-}
+func (t *trackerMap) removeNoLock(gvk schema.GroupVersionKind) { _ = "STUB: not implemented"; return }
 
 // Satisfied returns true if all tracked expectations have been satisfied.
-func (t *trackerMap) Satisfied() bool {
-	t.mu.RLock()
-	defer t.mu.RUnlock()
-	for _, ot := range t.m {
-		if !ot.Satisfied() {
-			return false
-		}
-	}
-	return true
-}
+func (t *trackerMap) Satisfied() bool { _ = "STUB: not implemented"; return false }
 
 // Populated returns true if all objectTrackers are populated.
-func (t *trackerMap) Populated() bool {
-	t.mu.RLock()
-	defer t.mu.RUnlock()
-	for _, ot := range t.m {
-		if !ot.Populated() {
-			return false
-		}
-	}
-	return true
-}
+func (t *trackerMap) Populated() bool { _ = "STUB: not implemented"; return false }
 
 // TryCancel will check the readinessRetries left on this GVK, and remove
 // the expectation for its objectTracker if no retries remain.
 // Returns True if it stopped tracking a resource kind.
 func (t *trackerMap) TryCancel(g schema.GroupVersionKind) bool {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	obj, ok := t.tryCanceled[g]
-	if !ok {
-		// need to create a record of this TryCancel call
-		obj = t.fn()
-	}
-
-	shouldDel := obj.decrementRetries()
-	t.tryCanceled[g] = obj // set the changed obj back to the map, as the value is not a pointer
-
-	if shouldDel {
-		t.removeNoLock(g)
-	}
-
-	return shouldDel
+	_ = "STUB: not implemented"
+	return false
 }
+
+// need to create a record of this TryCancel call
+
+// set the changed obj back to the map, as the value is not a pointer

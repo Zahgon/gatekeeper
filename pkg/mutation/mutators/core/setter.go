@@ -1,11 +1,5 @@
 package core
 
-import (
-	"fmt"
-
-	"github.com/open-policy-agent/gatekeeper/v3/apis/mutations/unversioned"
-)
-
 // Setter tells the mutate function what to do once we have found the
 // node that needs mutating.
 type Setter interface {
@@ -27,11 +21,7 @@ type Setter interface {
 
 var _ Setter = &defaultSetter{}
 
-func NewDefaultSetter(value interface{}) Setter {
-	return &defaultSetter{
-		value: value,
-	}
-}
+func NewDefaultSetter(value interface{}) Setter { _ = "STUB: not implemented"; return *new(Setter) }
 
 // defaultSetter is the default implementation of the Setter interface that supports
 // assigning plain values and external data placeholders.
@@ -39,39 +29,16 @@ type defaultSetter struct {
 	value interface{}
 }
 
-func (s *defaultSetter) KeyedListOkay() bool { return true }
+func (s *defaultSetter) KeyedListOkay() bool { _ = "STUB: not implemented"; return false }
 
 func (s *defaultSetter) KeyedListValue() (map[string]interface{}, error) {
-	valueAsObject, ok := s.value.(map[string]interface{})
-	if !ok {
-		return nil, fmt.Errorf("assign.value for keyed list is not an object: %+v", s.value)
-	}
-	return valueAsObject, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (s *defaultSetter) SetValue(obj map[string]interface{}, key string) error {
-	value := s.value
-	incomingPlaceholder, isIncomingPlaceholder := value.(*unversioned.ExternalDataPlaceholder)
-	if isIncomingPlaceholder {
-		// make a copy of the incoming placeholder so we can modify it
-		incomingPlaceholder = incomingPlaceholder.DeepCopy()
-	}
-
-	if _, ok := obj[key]; ok && isIncomingPlaceholder {
-		switch prev := obj[key].(type) {
-		case *unversioned.ExternalDataPlaceholder:
-			incomingPlaceholder.ValueAtLocation = prev.ValueAtLocation
-		case string:
-			incomingPlaceholder.ValueAtLocation = prev
-		default:
-			return fmt.Errorf("value assigned to external data placeholder is not a string, got %v (%T)", value, value)
-		}
-	}
-
-	if incomingPlaceholder != nil {
-		value = incomingPlaceholder
-	}
-
-	obj[key] = value
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// make a copy of the incoming placeholder so we can modify it

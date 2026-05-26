@@ -2,11 +2,8 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
 	"syscall"
 	"time"
 )
@@ -73,30 +70,6 @@ func main() {
 }
 
 func getLatestFile(dirPath string) (string, []string, error) {
-	var latestFile string
-	var latestModTime time.Time
-	var files []string
-
-	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() && strings.Contains(path, ".log") && (latestFile == "" || info.ModTime().After(latestModTime)) {
-			latestFile = path
-			latestModTime = info.ModTime()
-		}
-		if !info.IsDir() {
-			files = append(files, path)
-		}
-		return nil
-	})
-	if err != nil {
-		return "", files, err
-	}
-
-	if latestFile == "" {
-		return "", files, fmt.Errorf("no files found in directory: %s", dirPath)
-	}
-
-	return latestFile, files, nil
+	_ = "STUB: not implemented"
+	return "", nil, nil
 }

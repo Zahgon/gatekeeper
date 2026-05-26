@@ -16,13 +16,10 @@ limitations under the License.
 package v1beta1
 
 import (
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/operations"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -86,33 +83,16 @@ type ProviderPodStatusList struct {
 // that has been initialized with the bare minimum of fields to make it functional
 // with the ProviderPodStatus controller.
 func NewProviderStatusForPod(pod *corev1.Pod, providerName string, scheme *runtime.Scheme) (*ProviderPodStatus, error) {
-	obj := &ProviderPodStatus{}
-	name, err := KeyForProvider(pod.Name, providerName)
-	if err != nil {
-		return nil, err
-	}
-	obj.SetName(name)
-	obj.SetNamespace(util.GetNamespace())
-	obj.Status.ID = pod.Name
-	obj.Status.Operations = operations.AssignedStringList()
-	obj.SetLabels(map[string]string{
-		ProviderNameLabel: providerName,
-		PodLabel:          pod.Name,
-	})
-
-	// Skip OwnerReference in remote cluster mode
-	if !util.ShouldSkipPodOwnerRef() {
-		if err := controllerutil.SetOwnerReference(pod, obj, scheme); err != nil {
-			return nil, err
-		}
-	}
-
-	return obj, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Skip OwnerReference in remote cluster mode
 
 // KeyForProvider returns a unique status object name given the Pod ID and a provider object.
 func KeyForProvider(id string, providerName string) (string, error) {
-	return DashPacker(id, providerName)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func init() {

@@ -2,11 +2,8 @@ package bench
 
 import (
 	"fmt"
-	"os"
-	"strings"
 	"time"
 
-	cmdutils "github.com/open-policy-agent/gatekeeper/v3/cmd/gator/util"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/gator/bench"
 	"github.com/spf13/cobra"
 )
@@ -127,133 +124,30 @@ func init() {
 }
 
 func run(_ *cobra.Command, _ []string) {
+	_ = "STUB: not implemented"
 	// Validate engine flag
-	engine, err := parseEngine(flagEngine)
-	if err != nil {
-		cmdutils.ErrFatalf("invalid engine: %v", err)
-	}
-
-	// Validate output format
-	outputFormat, err := bench.ParseOutputFormat(flagOutput)
-	if err != nil {
-		cmdutils.ErrFatalf("invalid output format: %v", err)
-	}
-
-	// Validate inputs
-	if len(flagFilenames) == 0 && len(flagImages) == 0 {
-		cmdutils.ErrFatalf("at least one --filename or --image must be specified")
-	}
-
-	if flagIterations <= 0 {
-		cmdutils.ErrFatalf("iterations must be positive")
-	}
-
-	if flagWarmup < 0 {
-		cmdutils.ErrFatalf("warmup must be non-negative")
-	}
-
-	if flagThreshold < 0 {
-		cmdutils.ErrFatalf("threshold must be non-negative")
-	}
-
-	if flagMinThreshold < 0 {
-		cmdutils.ErrFatalf("min-threshold must be non-negative")
-	}
-
-	if flagConcurrency < 1 {
-		cmdutils.ErrFatalf("concurrency must be at least 1")
-	}
-
-	// Warn if warmup exceeds iterations (likely user error)
-	if flagWarmup > flagIterations {
-		fmt.Fprintf(os.Stderr, "Warning: warmup (%d) exceeds iterations (%d). Consider reducing warmup.\n\n", flagWarmup, flagIterations)
-	}
-
-	// Validate baseline file exists before running expensive benchmark
-	if flagCompare != "" {
-		if _, err := os.Stat(flagCompare); os.IsNotExist(err) {
-			cmdutils.ErrFatalf("baseline file does not exist: %s", flagCompare)
-		} else if err != nil {
-			cmdutils.ErrFatalf("cannot access baseline file: %v", err)
-		}
-	}
-
-	// Run benchmark
-	opts := &bench.Opts{
-		Filenames:    flagFilenames,
-		Images:       flagImages,
-		TempDir:      flagTempDir,
-		Engine:       engine,
-		Iterations:   flagIterations,
-		Warmup:       flagWarmup,
-		Concurrency:  flagConcurrency,
-		GatherStats:  flagStats,
-		Memory:       flagMemory,
-		Save:         flagSave,
-		Baseline:     flagCompare,
-		Threshold:    flagThreshold,
-		MinThreshold: flagMinThreshold,
-		Writer:       os.Stderr,
-	}
-
-	results, err := bench.Run(opts)
-	if err != nil {
-		cmdutils.ErrFatalf("benchmark failed: %v", err)
-	}
-
-	// Format and print results
-	output, err := bench.FormatResults(results, outputFormat)
-	if err != nil {
-		cmdutils.ErrFatalf("formatting results: %v", err)
-	}
-
-	fmt.Print(output)
-
-	// Save results if requested
-	if flagSave != "" {
-		if err := bench.SaveResults(results, flagSave); err != nil {
-			cmdutils.ErrFatalf("saving results: %v", err)
-		}
-		fmt.Fprintf(os.Stderr, "\nResults saved to: %s\n", flagSave)
-	}
-
-	// Compare against baseline if requested
-	exitCode := 0
-	if flagCompare != "" {
-		baseline, err := bench.LoadBaseline(flagCompare)
-		if err != nil {
-			cmdutils.ErrFatalf("loading baseline: %v", err)
-		}
-
-		comparisons := bench.Compare(baseline, results, flagThreshold, flagMinThreshold)
-		if len(comparisons) == 0 {
-			fmt.Fprintf(os.Stderr, "\nWarning: No matching engines found for comparison\n")
-		} else {
-			fmt.Println()
-			fmt.Print(bench.FormatComparison(comparisons, flagThreshold))
-
-			// Check if any comparison failed
-			for _, comp := range comparisons {
-				if !comp.Passed {
-					exitCode = 1
-					break
-				}
-			}
-		}
-	}
-
-	os.Exit(exitCode)
+	return
 }
 
+// Validate output format
+
+// Validate inputs
+
+// Warn if warmup exceeds iterations (likely user error)
+
+// Validate baseline file exists before running expensive benchmark
+
+// Run benchmark
+
+// Format and print results
+
+// Save results if requested
+
+// Compare against baseline if requested
+
+// Check if any comparison failed
+
 func parseEngine(s string) (bench.Engine, error) {
-	switch strings.ToLower(s) {
-	case string(bench.EngineRego):
-		return bench.EngineRego, nil
-	case string(bench.EngineCEL):
-		return bench.EngineCEL, nil
-	case string(bench.EngineAll):
-		return bench.EngineAll, nil
-	default:
-		return "", fmt.Errorf("invalid engine %q (valid: %s, %s, %s)", s, bench.EngineRego, bench.EngineCEL, bench.EngineAll)
-	}
+	_ = "STUB: not implemented"
+	return *new(bench.Engine), nil
 }

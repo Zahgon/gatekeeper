@@ -17,7 +17,4 @@ import (
 )
 
 // AddToManager adds upgrade manager to the Manager.
-func AddToManager(m manager.Manager) error {
-	am := New(m)
-	return m.Add(am)
-}
+func AddToManager(m manager.Manager) error { _ = "STUB: not implemented"; return nil }

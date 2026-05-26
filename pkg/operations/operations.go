@@ -5,9 +5,6 @@ package operations
 
 import (
 	"flag"
-	"fmt"
-	"sort"
-	"strings"
 	"sync"
 )
 
@@ -50,37 +47,16 @@ type opSet struct {
 
 var _ flag.Value = &opSet{}
 
-func newOperationSet() *opSet {
-	validOps := make(map[Operation]bool)
-	assignedOps := make(map[Operation]bool)
-	for _, v := range allOperations {
-		validOps[v] = true
-		assignedOps[v] = true // default to all operations enabled
-	}
-	return &opSet{validOperations: validOps, assignedOperations: assignedOps}
-}
+func newOperationSet() *opSet { _ = "STUB: not implemented"; return nil }
 
-func (l *opSet) String() string {
-	contents := make([]string, 0)
-	for k := range l.assignedOperations {
-		contents = append(contents, string(k))
-	}
-	return fmt.Sprintf("%s", contents)
-}
+// default to all operations enabled
+
+func (l *opSet) String() string { _ = "STUB: not implemented"; return "" }
 
 func (l *opSet) Set(s string) error {
-	if !l.initialized {
-		// When the user sets an explicit value, start fresh (no default all-values)
-		l.assignedOperations = make(map[Operation]bool)
-		l.initialized = true
-	}
-	splt := strings.Split(s, ",")
-	for _, v := range splt {
-		if !l.validOperations[Operation(v)] {
-			return fmt.Errorf("operation %s is not a valid operation: %v", v, l.validOperations)
-		}
-		l.assignedOperations[Operation(v)] = true
-	}
+	_ = "STUB: not implemented"
+
+	// When the user sets an explicit value, start fresh (no default all-values)
 	return nil
 }
 
@@ -89,45 +65,20 @@ func init() {
 }
 
 // IsAssigned returns true when the provided operation is assigned to the pod.
-func IsAssigned(op Operation) bool {
-	operationsMtx.RLock()
-	defer operationsMtx.RUnlock()
-
-	return operations.assignedOperations[op]
-}
+func IsAssigned(op Operation) bool { _ = "STUB: not implemented"; return false }
 
 // AssignedStringList returns a list of all operations assigned to the pod
 // as a sorted list of strings.
 func AssignedStringList() []string {
+	_ = "STUB: not implemented"
 	// Use a read lock so we can exit early without potentially having multiple
 	// threads try to write this simultaneously.
-	operationsMtx.RLock()
-	gotList := operations.assignedStringList
-	operationsMtx.RUnlock()
-	if gotList != nil {
-		return gotList
-	}
-
-	operationsMtx.Lock()
-	defer operationsMtx.Unlock()
-	// Verify the list hasn't been set since we last checked.
-	if operations.assignedStringList != nil {
-		return operations.assignedStringList
-	}
-
-	var ret []string
-	for k := range operations.assignedOperations {
-		ret = append(ret, string(k))
-	}
-	sort.Strings(ret)
-
-	operations.assignedStringList = ret
-	return operations.assignedStringList
+	return nil
 }
+
+// Verify the list hasn't been set since we last checked.
 
 // HasValidationOperations returns `true` if there
 // are any operations that would require a constraint or template controller
 // or a sync controller.
-func HasValidationOperations() bool {
-	return IsAssigned(Audit) || IsAssigned(Status) || IsAssigned(Webhook)
-}
+func HasValidationOperations() bool { _ = "STUB: not implemented"; return false }

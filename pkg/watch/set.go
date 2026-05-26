@@ -16,9 +16,6 @@ limitations under the License.
 package watch
 
 import (
-	"fmt"
-	"reflect"
-	"strings"
 	"sync"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -32,188 +29,58 @@ type Set struct {
 
 // RLock acquires a read lock on Set.
 func (w *Set) RLock() {
-	w.mux.RLock()
+	_ = "STUB: not implemented"
+
+	// RUnlock releases a read lock on Set.
+	return
 }
 
-// RUnlock releases a read lock on Set.
 func (w *Set) RUnlock() {
-	w.mux.RUnlock()
+	_ = "STUB: not implemented"
+
+	// DoForEach locks Set to prevent mutations and executes f on every element
+	// currently in the set.
+	// Exits early if f returns an error.
+	return
 }
 
-// DoForEach locks Set to prevent mutations and executes f on every element
-// currently in the set.
-// Exits early if f returns an error.
 func (w *Set) DoForEach(f func(gvk schema.GroupVersionKind) error) error {
-	w.mux.RLock()
-	defer w.mux.RUnlock()
-
-	for gvk := range w.set {
-		err := f(gvk)
-		if err != nil {
-			return err
-		}
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // NewSet constructs a new watchSet.
-func NewSet() *Set {
-	return &Set{
-		set: make(map[schema.GroupVersionKind]bool),
-	}
-}
+func NewSet() *Set { _ = "STUB: not implemented"; return nil }
 
 // SetFrom constructs a new watchSet from the given gvks.
-func SetFrom(items []schema.GroupVersionKind) *Set {
-	s := NewSet()
-	s.Add(items...)
+func SetFrom(items []schema.GroupVersionKind) *Set { _ = "STUB: not implemented"; return nil }
 
-	return s
-}
+func (w *Set) Size() int { _ = "STUB: not implemented"; return 0 }
 
-func (w *Set) Size() int {
-	w.mux.RLock()
-	defer w.mux.RUnlock()
-	return len(w.set)
-}
+func (w *Set) Items() []schema.GroupVersionKind { _ = "STUB: not implemented"; return nil }
 
-func (w *Set) Items() []schema.GroupVersionKind {
-	if w == nil {
-		return nil
-	}
+func (w *Set) String() string { _ = "STUB: not implemented"; return "" }
 
-	w.mux.RLock()
-	defer w.mux.RUnlock()
-	var r []schema.GroupVersionKind
-	for k := range w.set {
-		r = append(r, k)
-	}
-	return r
-}
+func (w *Set) Add(gvks ...schema.GroupVersionKind) { _ = "STUB: not implemented"; return }
 
-func (w *Set) String() string {
-	gvks := w.Items()
-	var strs []string
-	for _, gvk := range gvks {
-		strs = append(strs, gvk.String())
-	}
-	return fmt.Sprintf("[%s]", strings.Join(strs, ", "))
-}
+func (w *Set) Remove(gvks ...schema.GroupVersionKind) { _ = "STUB: not implemented"; return }
 
-func (w *Set) Add(gvks ...schema.GroupVersionKind) {
-	w.mux.Lock()
-	defer w.mux.Unlock()
-	for _, gvk := range gvks {
-		w.set[gvk] = true
-	}
-}
+func (w *Set) Dump() map[schema.GroupVersionKind]bool { _ = "STUB: not implemented"; return nil }
 
-func (w *Set) Remove(gvks ...schema.GroupVersionKind) {
-	w.mux.Lock()
-	defer w.mux.Unlock()
-	for _, gvk := range gvks {
-		delete(w.set, gvk)
-	}
-}
+func (w *Set) AddSet(other *Set) { _ = "STUB: not implemented"; return }
 
-func (w *Set) Dump() map[schema.GroupVersionKind]bool {
-	if w == nil {
-		return nil
-	}
+func (w *Set) RemoveSet(other *Set) { _ = "STUB: not implemented"; return }
 
-	w.mux.RLock()
-	defer w.mux.RUnlock()
-	m := make(map[schema.GroupVersionKind]bool, len(w.set))
-	for k, v := range w.set {
-		m[k] = v
-	}
-	return m
-}
-
-func (w *Set) AddSet(other *Set) {
-	s := other.Dump()
-	w.mux.Lock()
-	defer w.mux.Unlock()
-	for k := range s {
-		w.set[k] = true
-	}
-}
-
-func (w *Set) RemoveSet(other *Set) {
-	s := other.Dump()
-	w.mux.Lock()
-	defer w.mux.Unlock()
-	for k := range s {
-		delete(w.set, k)
-	}
-}
-
-func (w *Set) Equals(other *Set) bool {
-	if w == nil && other == nil {
-		return true
-	}
-	if w == nil || other == nil {
-		return false
-	}
-	otherSet := other.Dump()
-	w.mux.RLock()
-	defer w.mux.RUnlock()
-	return reflect.DeepEqual(w.set, otherSet)
-}
+func (w *Set) Equals(other *Set) bool { _ = "STUB: not implemented"; return false }
 
 // Replace locks Set for mutation, replaces Set with other, and then executes
 // any passed callbacks before releasing the lock.
-func (w *Set) Replace(other *Set, fns ...func()) {
-	otherSet := other.Dump()
-	w.mux.Lock()
-	defer w.mux.Unlock()
+func (w *Set) Replace(other *Set, fns ...func()) { _ = "STUB: not implemented"; return }
 
-	newSet := make(map[schema.GroupVersionKind]bool)
-	for k, v := range otherSet {
-		newSet[k] = v
-	}
-	w.set = newSet
-
-	for _, fn := range fns {
-		fn()
-	}
-}
-
-func (w *Set) Contains(gvk schema.GroupVersionKind) bool {
-	w.mux.RLock()
-	defer w.mux.RUnlock()
-	return w.set[gvk]
-}
+func (w *Set) Contains(gvk schema.GroupVersionKind) bool { _ = "STUB: not implemented"; return false }
 
 // Difference returns items in the set that are not in the other (provided) set.
-func (w *Set) Difference(other *Set) *Set {
-	s := other.Dump()
-	w.mux.RLock()
-	defer w.mux.RUnlock()
-
-	out := make(map[schema.GroupVersionKind]bool)
-	for k := range w.set {
-		if s[k] {
-			continue
-		}
-		out[k] = true
-	}
-	return &Set{set: out}
-}
+func (w *Set) Difference(other *Set) *Set { _ = "STUB: not implemented"; return nil }
 
 // Intersection returns a set composed of all items that are both in set w and other.
-func (w *Set) Intersection(other *Set) *Set {
-	s := other.Dump()
-	w.mux.RLock()
-	defer w.mux.RUnlock()
-
-	out := make(map[schema.GroupVersionKind]bool)
-	for k := range w.set {
-		if !s[k] {
-			continue
-		}
-		out[k] = true
-	}
-	return &Set{set: out}
-}
+func (w *Set) Intersection(other *Set) *Set { _ = "STUB: not implemented"; return nil }

@@ -47,30 +47,14 @@ var (
 type Opt func(client.Object)
 
 // WithName sets the metadata.name of the object.
-func WithName(name string) Opt {
-	return func(object client.Object) {
-		object.SetName(name)
-	}
-}
+func WithName(name string) Opt { _ = "STUB: not implemented"; return *new(Opt) }
 
 // WithNamespace sets the metadata.namespace of the object.
-func WithNamespace(namespace string) Opt {
-	return func(object client.Object) {
-		object.SetNamespace(namespace)
-	}
-}
+func WithNamespace(namespace string) Opt { _ = "STUB: not implemented"; return *new(Opt) }
 
 // WithUID sets the metadata.uid of the object.
-func WithUID(uid types.UID) Opt {
-	return func(object client.Object) {
-		object.SetUID(uid)
-	}
-}
+func WithUID(uid types.UID) Opt { _ = "STUB: not implemented"; return *new(Opt) }
 
 // WithLabels sets the metadata.labels of the object.
 // Overwrites any existing labels on the object.
-func WithLabels(labels map[string]string) Opt {
-	return func(object client.Object) {
-		object.SetLabels(labels)
-	}
-}
+func WithLabels(labels map[string]string) Opt { _ = "STUB: not implemented"; return *new(Opt) }

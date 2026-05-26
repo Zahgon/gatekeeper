@@ -16,36 +16,20 @@ type FnExporter struct {
 }
 
 func (e *FnExporter) Temporality(k sdkmetric.InstrumentKind) metricdata.Temporality {
-	if e.temporalityFunc != nil {
-		return e.temporalityFunc(k)
-	}
-	return sdkmetric.DefaultTemporalitySelector(k)
+	_ = "STUB: not implemented"
+	return *new(metricdata.Temporality)
 }
 
 func (e *FnExporter) Aggregation(k sdkmetric.InstrumentKind) sdkmetric.Aggregation {
-	if e.aggregationFunc != nil {
-		return e.aggregationFunc(k)
-	}
-	return sdkmetric.DefaultAggregationSelector(k)
+	_ = "STUB: not implemented"
+	return *new(sdkmetric.Aggregation)
 }
 
 func (e *FnExporter) Export(ctx context.Context, m *metricdata.ResourceMetrics) error {
-	if e.exportFunc != nil {
-		return e.exportFunc(ctx, m)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (e *FnExporter) ForceFlush(ctx context.Context) error {
-	if e.flushFunc != nil {
-		return e.flushFunc(ctx)
-	}
-	return nil
-}
+func (e *FnExporter) ForceFlush(ctx context.Context) error { _ = "STUB: not implemented"; return nil }
 
-func (e *FnExporter) Shutdown(ctx context.Context) error {
-	if e.shutdownFunc != nil {
-		return e.shutdownFunc(ctx)
-	}
-	return nil
-}
+func (e *FnExporter) Shutdown(ctx context.Context) error { _ = "STUB: not implemented"; return nil }

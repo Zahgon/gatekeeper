@@ -4,10 +4,4 @@ type Arg func(*Driver) error
 
 // GatherStats starts collecting various stats around the
 // underlying engine's calls.
-func GatherStats() Arg {
-	return func(driver *Driver) error {
-		driver.gatherStats = true
-
-		return nil
-	}
-}
+func GatherStats() Arg { _ = "STUB: not implemented"; return *new(Arg) }

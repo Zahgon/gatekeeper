@@ -1,7 +1,6 @@
 package webhookconfigcache
 
 import (
-	"reflect"
 	"sync"
 
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
@@ -27,39 +26,19 @@ type WebhookConfigCache struct {
 }
 
 // NewWebhookConfigCache creates a new webhook config cache.
-func NewWebhookConfigCache() *WebhookConfigCache {
-	return &WebhookConfigCache{
-		configs: make(map[string]WebhookMatchingConfig),
-	}
-}
+func NewWebhookConfigCache() *WebhookConfigCache { _ = "STUB: not implemented"; return nil }
 
 // UpsertConfig updates the cached config and returns whether it changed.
 func (w *WebhookConfigCache) UpsertConfig(webhookName string, newConfig WebhookMatchingConfig) bool {
-	w.mu.Lock()
-	defer w.mu.Unlock()
-
-	oldConfig, exists := w.configs[webhookName]
-	if !exists || !reflect.DeepEqual(oldConfig, newConfig) {
-		w.configs[webhookName] = newConfig
-		logger.Info("webhook config stored/updated in cache", "key", webhookName, "cacheSize", len(w.configs))
-		return true
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 // RemoveConfig removes a webhook config from cache.
-func (w *WebhookConfigCache) RemoveConfig(webhookName string) {
-	w.mu.Lock()
-	defer w.mu.Unlock()
-	delete(w.configs, webhookName)
-}
+func (w *WebhookConfigCache) RemoveConfig(webhookName string) { _ = "STUB: not implemented"; return }
 
 // GetConfig retrieves the current webhook configuration from cache.
 func (w *WebhookConfigCache) GetConfig(webhookName string) (WebhookMatchingConfig, bool) {
-	w.mu.RLock()
-	defer w.mu.RUnlock()
-
-	config, exists := w.configs[webhookName]
-	logger.Info("webhook config lookup result", "key", webhookName, "exists", exists)
-	return config, exists
+	_ = "STUB: not implemented"
+	return *new(WebhookMatchingConfig), false
 }

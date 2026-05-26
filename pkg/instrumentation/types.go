@@ -26,34 +26,6 @@ type StatsEntryWithDesc struct {
 // ToStatsEntriesWithDesc will use the client passed in to adorn constraint framework instrumentation.StatsEntry structs
 // with a description and returns an array of StatsEntryWithDesc.
 func ToStatsEntriesWithDesc(client *constraintclient.Client, cfentries []*cfinstr.StatsEntry) []*StatsEntryWithDesc {
-	var entriesWithDesc []*StatsEntryWithDesc
-	for _, se := range cfentries {
-		sewd := &StatsEntryWithDesc{
-			Scope:    se.Scope,
-			StatsFor: se.StatsFor,
-			Labels:   se.Labels,
-		}
-
-		var stats []*StatWithDesc
-		for _, stat := range se.Stats {
-			swd := &StatWithDesc{
-				Stat: *stat,
-			}
-
-			var desc string
-			if client != nil {
-				desc = client.GetDescriptionForStat(stat.Source, stat.Name)
-			} else {
-				desc = cfinstr.UnknownDescription
-			}
-
-			swd.Description = desc
-			stats = append(stats, swd)
-		}
-
-		sewd.Stats = stats
-		entriesWithDesc = append(entriesWithDesc, sewd)
-	}
-
-	return entriesWithDesc
+	_ = "STUB: not implemented"
+	return nil
 }

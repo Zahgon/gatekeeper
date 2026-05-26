@@ -26,63 +26,75 @@ import (
 type NoopClient struct{}
 
 func (f *NoopClient) Get(_ context.Context, _ client.ObjectKey, _ runtime.Object) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *NoopClient) List(_ context.Context, _ client.ObjectList, _ ...client.ListOption) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *NoopClient) Create(_ context.Context, _ client.Object, _ ...client.CreateOption) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *NoopClient) Apply(_ context.Context, _ runtime.ApplyConfiguration, _ ...client.ApplyOption) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *NoopClient) Delete(_ context.Context, _ client.Object, _ ...client.DeleteOption) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *NoopClient) Update(_ context.Context, _ client.Object, _ ...client.UpdateOption) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *NoopClient) Patch(_ context.Context, _ client.Object, _ client.Patch, _ ...client.PatchOption) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *NoopClient) DeleteAllOf(_ context.Context, _ client.Object, _ ...client.DeleteAllOfOption) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *NoopClient) Status() client.StatusWriter {
-	return &SubResourceNoopClient{}
+	_ = "STUB: not implemented"
+	return *new(client.StatusWriter)
 }
 
 func (f *NoopClient) RESTMapper() meta.RESTMapper {
-	return nil
+	_ = "STUB: not implemented"
+	return *new(meta.RESTMapper)
 }
 
-func (f *NoopClient) Scheme() *runtime.Scheme {
-	return nil
-}
+func (f *NoopClient) Scheme() *runtime.Scheme { _ = "STUB: not implemented"; return nil }
 
 type SubResourceNoopClient struct{}
 
 func (f *SubResourceNoopClient) Create(_ context.Context, _, _ client.Object, _ ...client.SubResourceCreateOption) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *SubResourceNoopClient) Update(_ context.Context, _ client.Object, _ ...client.SubResourceUpdateOption) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *SubResourceNoopClient) Patch(_ context.Context, _ client.Object, _ client.Patch, _ ...client.SubResourcePatchOption) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (f *SubResourceNoopClient) Apply(_ context.Context, _ runtime.ApplyConfiguration, _ ...client.SubResourceApplyOption) error {
+	_ = "STUB: not implemented"
 	return nil
 }

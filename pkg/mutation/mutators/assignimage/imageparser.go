@@ -1,9 +1,7 @@
 package assignimage
 
 import (
-	"fmt"
 	"regexp"
-	"strings"
 )
 
 var (
@@ -37,129 +35,51 @@ type image struct {
 }
 
 func mutateImage(domain, path, tag, mutableImgRef string) string {
-	oldImg := newImage(mutableImgRef)
-	newImg := oldImg.newMutatedImage(domain, path, tag)
-	return newImg.fullRef()
+	_ = "STUB: not implemented"
+	return ""
 }
 
-func newImage(imageRef string) image {
-	domain, remainder := splitDomain(imageRef)
-	path, tag := splitTag(remainder)
-	return image{domain: domain, path: path, tag: tag}
-}
+func newImage(imageRef string) image { _ = "STUB: not implemented"; return *new(image) }
 
 // splitTag separates the path and tag components from a string.
-func splitTag(remainder string) (string, string) {
-	var path string
-	tag := ""
-	if tagSep := strings.IndexAny(remainder, ":@"); tagSep > -1 {
-		path = remainder[:tagSep]
-		tag = remainder[tagSep:]
-	} else {
-		path = remainder
-	}
-
-	return path, tag
-}
+func splitTag(remainder string) (string, string) { _ = "STUB: not implemented"; return "", "" }
 
 func (img image) newMutatedImage(domain, path, tag string) image {
-	return image{
-		domain: ignoreUnset(img.domain, domain),
-		path:   ignoreUnset(img.path, path),
-		tag:    ignoreUnset(img.tag, tag),
-	}
+	_ = "STUB: not implemented"
+	return *new(image)
 }
 
 // ignoreUnset returns `new` if `new` is set, otherwise it returns `old`.
-func ignoreUnset(old, new string) string { // nolint:revive
-	if new != "" {
-		return new
-	}
-	return old
+func ignoreUnset(old, new string) string {
+	_ = "STUB: not implemented" // nolint:revive
+	return ""
 }
 
-func (img image) fullRef() string {
-	domain := img.domain
-	if domain != "" {
-		domain += "/"
-	}
-	return domain + img.path + img.tag
-}
+func (img image) fullRef() string { _ = "STUB: not implemented"; return "" }
 
-func splitDomain(name string) (domain, remainder string) {
-	i := strings.IndexRune(name, '/')
-	if i == -1 || (!strings.ContainsAny(name[:i], ".:") && name[:i] != "localhost") {
-		return "", name
-	}
-	return name[:i], name[i+1:]
-}
+func splitDomain(name string) (domain, remainder string) { _ = "STUB: not implemented"; return "", "" }
 
-func validateDomain(domain string) error {
-	if domain == "" {
-		return nil
-	}
+func validateDomain(domain string) error { _ = "STUB: not implemented"; return nil }
 
-	if !domainRegexp.MatchString(domain) {
-		return newInvalidDomainError(domain)
-	}
+// The error below should theoretically be unreachable, as the regex
+// validation should preclude this from happening. This check is included
+// anyway to prevent code drift, and ensure that if a domain is validated
+// it can also be recognized as a domain.
 
-	// The error below should theoretically be unreachable, as the regex
-	// validation should preclude this from happening. This check is included
-	// anyway to prevent code drift, and ensure that if a domain is validated
-	// it can also be recognized as a domain.
-	if d, r := splitDomain(domain + "/"); d != domain || r != "" {
-		return fmt.Errorf("domain %q could not be recognized as a valid domain", domain)
-	}
+func validateTag(tag string) error { _ = "STUB: not implemented"; return nil }
 
-	return nil
-}
+// This error should never happen because the regex above prevents it, but the
+// check is included to prevent drift. Splitting the tag should return itself,
+// and splitting a valid tag should never return a path.
 
-func validateTag(tag string) error {
-	if tag == "" {
-		return nil
-	}
+func validateImageParts(domain, path, tag string) error { _ = "STUB: not implemented"; return nil }
 
-	if !tagRegexp.MatchString(tag) {
-		return newInvalidTagError(tag)
-	}
+// match the whole string for path (anchoring with `$` is tricky here)
 
-	// This error should never happen because the regex above prevents it, but the
-	// check is included to prevent drift. Splitting the tag should return itself,
-	// and splitting a valid tag should never return a path.
-	if p, t := splitTag(tag); t != tag || p != "" {
-		return fmt.Errorf("tag %q could not be recognized as a valid tag or digest", tag)
-	}
-
-	return nil
-}
-
-func validateImageParts(domain, path, tag string) error {
-	if domain == "" && path == "" && tag == "" {
-		return newMissingComponentsError()
-	}
-	if err := validateDomain(domain); err != nil {
-		return err
-	}
-	// match the whole string for path (anchoring with `$` is tricky here)
-	if path != "" && path != pathRegexp.FindString(path) {
-		return newInvalidPathError(path)
-	}
-	if err := validateTag(tag); err != nil {
-		return err
-	}
-
-	// Check if the path looks like a domain string, and the domain is not set.
-	// This prevents part of the path field from "leaking" to the domain, causing
-	// non convergent behavior.
-	// For example, suppose: domain="", path="gcr.io/repo", tag=""
-	// Suppose no value is currently set on the mutable, so the result is
-	// just "gcr.io/repo". When this value mutated again, "gcr.io" is parsed into
-	// the domain component, so the result would be "gcr.io/gcr.io/repo" and so on.
-	if domain == "" {
-		if d, _ := splitDomain(path); d != "" {
-			return newDomainLikePathError(path)
-		}
-	}
-
-	return nil
-}
+// Check if the path looks like a domain string, and the domain is not set.
+// This prevents part of the path field from "leaking" to the domain, causing
+// non convergent behavior.
+// For example, suppose: domain="", path="gcr.io/repo", tag=""
+// Suppose no value is currently set on the mutable, so the result is
+// just "gcr.io/repo". When this value mutated again, "gcr.io" is parsed into
+// the domain component, so the result would be "gcr.io/gcr.io/repo" and so on.

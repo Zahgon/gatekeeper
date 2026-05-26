@@ -1,9 +1,7 @@
 package util
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
 
 	apiconstraints "github.com/open-policy-agent/frameworks/constraint/pkg/apis/constraints"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -59,116 +57,42 @@ var ErrUnrecognizedEnforcementPoint = errors.New("unrecognized enforcement point
 var ErrInvalidSpecScopedEnforcementAction = errors.New("spec.scopedEnforcementAction must be in the format of []{action: string, enforcementPoints: []{name: string}}")
 
 func ValidateEnforcementAction(input EnforcementAction, item map[string]interface{}) error {
-	switch input {
-	case Scoped:
-		return ValidateScopedEnforcementAction(item)
-	case Dryrun, Deny, Warn:
-		return nil
-	default:
-		return fmt.Errorf("%w: %q is not within the supported list %v",
-			ErrEnforcementAction, input, supportedEnforcementActions)
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func ValidateScopedEnforcementAction(item map[string]interface{}) error {
-	obj, err := GetScopedEnforcementAction(item)
-	if err != nil {
-		return fmt.Errorf("error fetching scopedEnforcementActions: %w", err)
-	}
-
-	var unrecognizedEnforcementPoints []string
-	var unrecognizedEnforcementActions []string
-	var errs []error
-	// validating scopedEnforcementActions
-	for _, scopedEnforcementAction := range *obj {
-		switch EnforcementAction(scopedEnforcementAction.Action) {
-		case Dryrun, Deny, Warn:
-		default:
-			unrecognizedEnforcementActions = append(unrecognizedEnforcementActions, scopedEnforcementAction.Action)
-		}
-		if len(scopedEnforcementAction.EnforcementPoints) == 0 {
-			unrecognizedEnforcementPoints = append(unrecognizedEnforcementPoints, "")
-		}
-		for _, enforcementPoint := range scopedEnforcementAction.EnforcementPoints {
-			switch enforcementPoint.Name {
-			case WebhookEnforcementPoint, AuditEnforcementPoint, GatorEnforcementPoint, VAPEnforcementPoint, AllEnforcementPoints:
-			default:
-				unrecognizedEnforcementPoints = append(unrecognizedEnforcementPoints, enforcementPoint.Name)
-			}
-		}
-	}
-	if len(unrecognizedEnforcementPoints) > 0 {
-		errs = append(errs, fmt.Errorf("%w: constraint will not be enforced for enforcement points %v, supported enforcement points are %v", ErrUnrecognizedEnforcementPoint, unrecognizedEnforcementPoints, supportedEnforcementPoints))
-	}
-	if len(unrecognizedEnforcementActions) > 0 {
-		errs = append(errs, fmt.Errorf("%w: %v is not within the supported list %v", ErrEnforcementAction, unrecognizedEnforcementActions, supportedScopedActions))
-	}
-	return errors.Join(errs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// validating scopedEnforcementActions
+
 func GetScopedEnforcementAction(item map[string]interface{}) (*[]apiconstraints.ScopedEnforcementAction, error) {
-	scopedEnforcementActions, found, err := unstructured.NestedFieldNoCopy(item, "spec", "scopedEnforcementActions")
-	if err != nil {
-		return nil, fmt.Errorf("error fetching scopedEnforcementActions: %w", err)
-	}
-	if !found {
-		return nil, fmt.Errorf("scopedEnforcementActions is required")
-	}
-	return convertToScopedEnforcementActions(scopedEnforcementActions)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func convertToScopedEnforcementActions(object interface{}) (*[]apiconstraints.ScopedEnforcementAction, error) {
-	j, err := json.Marshal(object)
-	if err != nil {
-		return nil, fmt.Errorf("could not convert unknown object to JSON: %w", err)
-	}
-	obj := []apiconstraints.ScopedEnforcementAction{}
-	if err := json.Unmarshal(j, &obj); err != nil {
-		return nil, fmt.Errorf("could not convert JSON to scopedEnforcementActions: %w", err)
-	}
-	return &obj, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetEnforcementAction(item map[string]interface{}) (EnforcementAction, error) {
-	enforcementActionSpec, _, err := unstructured.NestedString(item, "spec", "enforcementAction")
-	if err != nil {
-		return "", fmt.Errorf("%w: %w", ErrInvalidSpecEnforcementAction, err)
-	}
-	enforcementAction := EnforcementAction(enforcementActionSpec)
-	// default enforcementAction is deny
-	if enforcementAction == "" {
-		enforcementAction = Deny
-	}
-	// validating enforcement action - if it is not deny or dryrun or scoped, we are classifying as unrecognized
-	switch enforcementAction {
-	case Dryrun, Deny, Warn, Scoped:
-		return enforcementAction, nil
-	default:
-		enforcementAction = Unrecognized
-	}
-
-	return enforcementAction, nil
+	_ = "STUB: not implemented"
+	return *new(EnforcementAction), nil
 }
 
+// default enforcementAction is deny
+
+// validating enforcement action - if it is not deny or dryrun or scoped, we are classifying as unrecognized
+
 func ScopedActionForEP(enforcementPoint string, u *unstructured.Unstructured) ([]string, error) {
-	enforcementActions := []string{}
-	scopedEnforcementActions, err := GetScopedEnforcementAction(u.Object)
-	if err != nil {
-		return nil, err
-	}
-	for _, scopedEnforcementAction := range *scopedEnforcementActions {
-		if enforcementPointEnabled(scopedEnforcementAction, enforcementPoint) {
-			enforcementActions = append(enforcementActions, scopedEnforcementAction.Action)
-		}
-	}
-	return enforcementActions, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func enforcementPointEnabled(scopedEnforcementAction apiconstraints.ScopedEnforcementAction, enforcementPoint string) bool {
-	for _, ep := range scopedEnforcementAction.EnforcementPoints {
-		if ep.Name == enforcementPoint || ep.Name == AllEnforcementPoints {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }

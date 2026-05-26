@@ -15,37 +15,20 @@ type VAPStatusRegistry struct {
 }
 
 // NewVAPStatusRegistry creates a new VAPStatusRegistry instance.
-func NewVAPStatusRegistry() *VAPStatusRegistry {
-	return &VAPStatusRegistry{cache: make(map[types.NamespacedName]VAPStatus)}
-}
+func NewVAPStatusRegistry() *VAPStatusRegistry { _ = "STUB: not implemented"; return nil }
 
 // Add adds or updates a resource's status in the registry.
 // If the resource already exists with the same status, this is a no-op.
 func (r *VAPStatusRegistry) Add(key types.NamespacedName, status VAPStatus) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	existing, ok := r.cache[key]
-	if ok && existing == status {
-		return
-	}
-	r.cache[key] = status
+	_ = "STUB: not implemented"
+	return
 }
 
 // Remove removes a resource from the registry.
-func (r *VAPStatusRegistry) Remove(key types.NamespacedName) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	delete(r.cache, key)
-}
+func (r *VAPStatusRegistry) Remove(key types.NamespacedName) { _ = "STUB: not implemented"; return }
 
 // ComputeTotals returns the count of resources for each status.
 func (r *VAPStatusRegistry) ComputeTotals() map[VAPStatus]int64 {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
-	totals := make(map[VAPStatus]int64)
-	for _, status := range r.cache {
-		totals[status]++
-	}
-	return totals
+	_ = "STUB: not implemented"
+	return nil
 }

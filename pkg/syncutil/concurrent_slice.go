@@ -8,32 +8,15 @@ type ConcurrentErrorSlice struct {
 }
 
 func NewConcurrentErrorSlice() ConcurrentErrorSlice {
-	return ConcurrentErrorSlice{
-		s:  make([]error, 0),
-		mu: &sync.RWMutex{},
-	}
+	_ = "STUB: not implemented"
+	return *new(ConcurrentErrorSlice)
 }
 
 func (c ConcurrentErrorSlice) Append(e error) ConcurrentErrorSlice {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	return ConcurrentErrorSlice{
-		s:  append(c.s, e),
-		mu: c.mu,
-	}
+	_ = "STUB: not implemented"
+	return *new(ConcurrentErrorSlice)
 }
 
-func (c ConcurrentErrorSlice) Last() error {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+func (c ConcurrentErrorSlice) Last() error { _ = "STUB: not implemented"; return nil }
 
-	return c.s[len(c.s)-1]
-}
-
-func (c ConcurrentErrorSlice) GetSlice() []error {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	var s []error
-	return append(s, c.s...)
-}
+func (c ConcurrentErrorSlice) GetSlice() []error { _ = "STUB: not implemented"; return nil }

@@ -17,37 +17,20 @@ package config
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/open-policy-agent/frameworks/constraint/pkg/apis/templates/v1beta1"
 	configv1alpha1 "github.com/open-policy-agent/gatekeeper/v3/apis/config/v1alpha1"
 	statusv1beta1 "github.com/open-policy-agent/gatekeeper/v3/apis/status/v1beta1"
 	cm "github.com/open-policy-agent/gatekeeper/v3/pkg/cachemanager"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/cachemanager/aggregator"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/config/process"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/configstatus"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/constrainttemplate"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/drivers/k8scel/transform"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/keys"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/operations"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/readiness"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/util/retry"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
 const (
@@ -60,96 +43,35 @@ var (
 )
 
 func (r *ReconcileConfig) markDirtyTemplate(template *v1beta1.ConstraintTemplate) {
-	r.dirtyMu.Lock()
-	defer r.dirtyMu.Unlock()
-	if r.dirtyTemplates == nil {
-		r.dirtyTemplates = make(map[string]*v1beta1.ConstraintTemplate)
-	}
-	r.dirtyTemplates[template.Name] = template
+	_ = "STUB: not implemented"
+	return
 }
 
 func (r *ReconcileConfig) getDirtyTemplatesAndClear() []*v1beta1.ConstraintTemplate {
-	r.dirtyMu.Lock()
-	defer r.dirtyMu.Unlock()
-	if len(r.dirtyTemplates) == 0 {
-		return nil
-	}
-	templates := make([]*v1beta1.ConstraintTemplate, 0, len(r.dirtyTemplates))
-	for _, template := range r.dirtyTemplates {
-		templates = append(templates, template)
-	}
-	r.dirtyTemplates = make(map[string]*v1beta1.ConstraintTemplate)
-	return templates
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (r *ReconcileConfig) triggerConstraintTemplateReconciliation(ctx context.Context) error {
-	templateList := &v1beta1.ConstraintTemplateList{}
-	if err := r.reader.List(ctx, templateList); err != nil {
-		log.Error(err, "failed to list ConstraintTemplates for config reconciliation")
-		return err
-	}
-
-	var errs []error
-	for i := range templateList.Items {
-		generateVap, err := constrainttemplate.ShouldGenerateVAPForVersionedCT(&templateList.Items[i], r.scheme)
-		if err != nil || !generateVap {
-			continue
-		}
-		if err := r.sendEventWithRetry(ctx, &templateList.Items[i]); err != nil {
-			errs = append(errs, err)
-			r.markDirtyTemplate(&templateList.Items[i])
-		}
-	}
-	return errors.Join(errs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (r *ReconcileConfig) triggerDirtyTemplateReconciliation(ctx context.Context) error {
-	dirtyTemplates := r.getDirtyTemplatesAndClear()
-	if len(dirtyTemplates) == 0 {
-		return nil
-	}
-
-	var errs []error
-	for _, template := range dirtyTemplates {
-		if err := r.sendEventWithRetry(ctx, template); err != nil {
-			errs = append(errs, err)
-			r.markDirtyTemplate(template)
-		}
-	}
-	return errors.Join(errs...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (r *ReconcileConfig) sendEventWithRetry(ctx context.Context, template *v1beta1.ConstraintTemplate) error {
-	if r.ctEvents == nil {
-		log.V(1).Info("ctEvents channel is nil, skipping event", "template", template.Name)
-		return nil
-	}
-
-	return retry.OnError(retry.DefaultBackoff, func(err error) bool {
-		return err != nil
-	}, func() error {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case r.ctEvents <- event.GenericEvent{Object: template}:
-			log.V(1).Info("event sent successfully", "template", template.Name)
-			return nil
-		default:
-			log.V(1).Info("channel full, will retry with backoff", "template", template.Name)
-			return &ChannelFullError{}
-		}
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type ChannelFullError struct{}
 
-func (e *ChannelFullError) Error() string {
-	return "channel is full"
-}
+func (e *ChannelFullError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (e *ChannelFullError) Temporary() bool {
-	return true
-}
+func (e *ChannelFullError) Temporary() bool { _ = "STUB: not implemented"; return false }
 
 type Adder struct {
 	Tracker      *readiness.Tracker
@@ -161,71 +83,37 @@ type Adder struct {
 
 // Add creates a new ConfigController and adds it to the Manager with default RBAC. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
-func (a *Adder) Add(mgr manager.Manager) error {
-	r, err := newReconciler(mgr, a.CacheManager, a.Tracker, a.GetPod, a.CtEvents)
-	if err != nil {
-		return err
-	}
+func (a *Adder) Add(mgr manager.Manager) error { _ = "STUB: not implemented"; return nil }
 
-	return add(mgr, r)
-}
+func (a *Adder) InjectTracker(t *readiness.Tracker) { _ = "STUB: not implemented"; return }
 
-func (a *Adder) InjectTracker(t *readiness.Tracker) {
-	a.Tracker = t
-}
-
-func (a *Adder) InjectCacheManager(cm *cm.CacheManager) {
-	a.CacheManager = cm
-}
+func (a *Adder) InjectCacheManager(cm *cm.CacheManager) { _ = "STUB: not implemented"; return }
 
 func (a *Adder) InjectGetPod(getPod func(ctx context.Context) (*corev1.Pod, error)) {
-	a.GetPod = getPod
+	_ = "STUB: not implemented"
+	return
 }
 
 func (a *Adder) InjectConstraintTemplateEvent(ctEvents chan event.GenericEvent) {
-	a.CtEvents = ctEvents
+	_ = "STUB: not implemented"
+	return
+
+	// newReconciler returns a new reconcile.Reconciler.
 }
 
-// newReconciler returns a new reconcile.Reconciler.
 func newReconciler(mgr manager.Manager, cm *cm.CacheManager, tracker *readiness.Tracker, getPod func(context.Context) (*corev1.Pod, error), ctEvents chan<- event.GenericEvent) (*ReconcileConfig, error) {
-	if cm == nil {
-		return nil, fmt.Errorf("cacheManager must be non-nil")
-	}
-
-	return &ReconcileConfig{
-		reader:       mgr.GetCache(),
-		writer:       mgr.GetClient(),
-		statusClient: mgr.GetClient(),
-		scheme:       mgr.GetScheme(),
-		cacheManager: cm,
-		tracker:      tracker,
-		getPod:       getPod,
-		ctEvents:     ctEvents,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler.
 func add(mgr manager.Manager, r reconcile.Reconciler) error {
+	_ = "STUB: not implemented"
 	// Create a new controller
-	c, err := controller.New(ctrlName, mgr, controller.Options{Reconciler: r})
-	if err != nil {
-		return err
-	}
-
-	// Watch for changes to Config
-	err = c.Watch(source.Kind(mgr.GetCache(), &configv1alpha1.Config{}, &handler.TypedEnqueueRequestForObject[*configv1alpha1.Config]{}))
-	if err != nil {
-		return err
-	}
-
-	err = c.Watch(
-		source.Kind(mgr.GetCache(), &statusv1beta1.ConfigPodStatus{}, handler.TypedEnqueueRequestsFromMapFunc(configstatus.PodStatusToConfigMapper(true))))
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
+
+// Watch for changes to Config
 
 var _ reconcile.Reconciler = &ReconcileConfig{}
 
@@ -257,158 +145,42 @@ type ReconcileConfig struct {
 // and what is in the Config.Spec
 // Automatically generate RBAC rules to allow the Controller to read all things (for sync).
 func (r *ReconcileConfig) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
+	_ = "STUB: not implemented"
 	// Fetch the Config instance
-	if request.NamespacedName != keys.Config {
-		log.Info("Ignoring unsupported config name", "namespace", request.Namespace, "name", request.Name)
-		return reconcile.Result{}, nil
-	}
-	exists := true
-	instance := &configv1alpha1.Config{}
-	err := r.reader.Get(ctx, request.NamespacedName, instance)
-	if err != nil {
-		// if config is not found, we should remove cached data
-		if apierrors.IsNotFound(err) {
-			exists = false
-		} else {
-			// Error reading the object - requeue the request.
-			return reconcile.Result{}, err
-		}
-	}
-
-	newExcluder := process.New()
-	var statsEnabled bool
-	// If the config is being deleted the user is saying they don't want to
-	// sync anything
-	gvksToSync := []schema.GroupVersionKind{}
-
-	// K8s API conventions consider an object to be deleted when either the object no longer exists or when a deletion timestamp has been set.
-	deleted := !exists || !instance.GetDeletionTimestamp().IsZero()
-
-	if !deleted {
-		for _, entry := range instance.Spec.Sync.SyncOnly {
-			gvksToSync = append(gvksToSync, entry.ToGroupVersionKind())
-		}
-
-		newExcluder.Add(instance.Spec.Match)
-		statsEnabled = instance.Spec.Readiness.StatsEnabled
-	}
-
-	// Enable verbose readiness stats if requested.
-	if statsEnabled {
-		log.Info("enabling readiness stats")
-		r.tracker.EnableStats()
-	} else {
-		log.Info("disabling readiness stats")
-		r.tracker.DisableStats()
-	}
-
-	var configChanged bool
-	if operations.IsAssigned(operations.Generate) && *transform.SyncVAPScope && r.ctEvents != nil {
-		configChanged = r.cacheManager.ExcluderChangedForProcess(process.Webhook, newExcluder)
-	}
-
-	r.cacheManager.ExcludeProcesses(newExcluder)
-	var ctTriggerError error
-	if operations.IsAssigned(operations.Generate) && *transform.SyncVAPScope && r.ctEvents != nil {
-		if configChanged {
-			ctTriggerError = r.triggerConstraintTemplateReconciliation(ctx)
-			if ctTriggerError != nil {
-				log.Error(ctTriggerError, "failed to trigger constraint template reconciliation")
-			}
-		} else {
-			ctTriggerError = r.triggerDirtyTemplateReconciliation(ctx)
-			if ctTriggerError != nil {
-				log.Error(ctTriggerError, "failed to trigger dirty template reconciliation")
-			}
-		}
-	}
-
-	// Directly accessing the NamespaceName.String(), as NamespaceName is embedded within reconcile.Request.
-	configSourceKey := aggregator.Key{Source: "config", ID: request.String()}
-	if err := r.cacheManager.UpsertSource(ctx, configSourceKey, gvksToSync); err != nil {
-		r.tracker.For(configGVK).TryCancelExpect(instance)
-
-		return reconcile.Result{Requeue: true}, r.updateOrCreatePodStatus(ctx, instance, err)
-	}
-
-	r.tracker.For(configGVK).Observe(instance)
-
-	if deleted {
-		return reconcile.Result{}, r.deleteStatus(ctx, request.Namespace, request.Name)
-	}
-	return reconcile.Result{}, r.updateOrCreatePodStatus(ctx, instance, ctTriggerError)
+	return *new(reconcile.Result), nil
 }
 
+// if config is not found, we should remove cached data
+
+// Error reading the object - requeue the request.
+
+// If the config is being deleted the user is saying they don't want to
+// sync anything
+
+// K8s API conventions consider an object to be deleted when either the object no longer exists or when a deletion timestamp has been set.
+
+// Enable verbose readiness stats if requested.
+
+// Directly accessing the NamespaceName.String(), as NamespaceName is embedded within reconcile.Request.
+
 func (r *ReconcileConfig) deleteStatus(ctx context.Context, cfgNamespace string, cfgName string) error {
-	status := &statusv1beta1.ConfigPodStatus{}
-	pod, err := r.getPod(ctx)
-	if err != nil {
-		return fmt.Errorf("getting reconciler pod: %w", err)
-	}
-	sName, err := statusv1beta1.KeyForConfig(pod.Name, cfgNamespace, cfgName)
-	if err != nil {
-		return fmt.Errorf("getting key for config: %w", err)
-	}
-	status.SetName(sName)
-	status.SetNamespace(util.GetNamespace())
-	if err := r.writer.Delete(ctx, status); err != nil && !apierrors.IsNotFound(err) {
-		return err
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (r *ReconcileConfig) updateOrCreatePodStatus(ctx context.Context, cfg *configv1alpha1.Config, upsertErr error) error {
-	pod, err := r.getPod(ctx)
-	if err != nil {
-		return fmt.Errorf("getting reconciler pod: %w", err)
-	}
-
-	// Check if it exists already
-	sNS := pod.Namespace
-	sName, err := statusv1beta1.KeyForConfig(pod.Name, cfg.GetNamespace(), cfg.GetName())
-	if err != nil {
-		return fmt.Errorf("getting key for config: %w", err)
-	}
-	shouldCreate := true
-	status := &statusv1beta1.ConfigPodStatus{}
-
-	err = r.reader.Get(ctx, types.NamespacedName{Namespace: sNS, Name: sName}, status)
-	switch {
-	case err == nil:
-		shouldCreate = false
-	case apierrors.IsNotFound(err):
-		if status, err = r.newConfigStatus(pod, cfg); err != nil {
-			return fmt.Errorf("creating new config status: %w", err)
-		}
-	default:
-		return fmt.Errorf("getting config status in name %s, namespace %s: %w", cfg.GetName(), cfg.GetNamespace(), err)
-	}
-
-	setStatusError(status, upsertErr)
-
-	status.Status.ObservedGeneration = cfg.GetGeneration()
-
-	if shouldCreate {
-		return r.writer.Create(ctx, status)
-	}
-	return r.writer.Update(ctx, status)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (r *ReconcileConfig) newConfigStatus(pod *corev1.Pod, cfg *configv1alpha1.Config) (*statusv1beta1.ConfigPodStatus, error) {
-	status, err := statusv1beta1.NewConfigStatusForPod(pod, cfg.GetNamespace(), cfg.GetName(), r.scheme)
-	if err != nil {
-		return nil, fmt.Errorf("creating status for pod: %w", err)
-	}
-	status.Status.ConfigUID = cfg.GetUID()
+// Check if it exists already
 
-	return status, nil
+func (r *ReconcileConfig) newConfigStatus(pod *corev1.Pod, cfg *configv1alpha1.Config) (*statusv1beta1.ConfigPodStatus, error) {
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func setStatusError(status *statusv1beta1.ConfigPodStatus, etErr error) {
-	if etErr == nil {
-		status.Status.Errors = nil
-		return
-	}
-	e := &statusv1beta1.ConfigError{Message: etErr.Error()}
-	status.Status.Errors = []*statusv1beta1.ConfigError{e}
+	_ = "STUB: not implemented"
+	return
 }

@@ -1,12 +1,7 @@
 package types
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/path/parser"
-	"github.com/pkg/errors"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -34,16 +29,9 @@ type ID struct {
 	Name      string
 }
 
-func (id ID) String() string {
-	return fmt.Sprintf("%v %v",
-		schema.GroupKind{Group: id.Group, Kind: id.Kind},
-		client.ObjectKey{Namespace: id.Namespace, Name: id.Name})
-}
+func (id ID) String() string { _ = "STUB: not implemented"; return "" }
 
-func IsValidSource(src SourceType) bool {
-	_, exists := validSourceTypes[src]
-	return exists
-}
+func IsValidSource(src SourceType) bool { _ = "STUB: not implemented"; return false }
 
 // Mutator represent a mutation object.
 type Mutator interface {
@@ -72,21 +60,7 @@ type MetadataGetter interface {
 }
 
 // MakeID builds an ID object for the given object.
-func MakeID(obj client.Object) ID {
-	return ID{
-		Group:     obj.GetObjectKind().GroupVersionKind().Group,
-		Kind:      obj.GetObjectKind().GroupVersionKind().Kind,
-		Name:      obj.GetName(),
-		Namespace: obj.GetNamespace(),
-	}
-}
+func MakeID(obj client.Object) ID { _ = "STUB: not implemented"; return *new(ID) }
 
 // UnmarshalValue unmarshals the value a mutation is meant to assign.
-func UnmarshalValue(data []byte) (interface{}, error) {
-	value := make(map[string]interface{})
-	err := json.Unmarshal(data, &value)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to unmarshal value %s", data)
-	}
-	return value["value"], nil
-}
+func UnmarshalValue(data []byte) (interface{}, error) { _ = "STUB: not implemented"; return nil, nil }

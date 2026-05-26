@@ -13,11 +13,6 @@ type KindVersionName struct {
 }
 
 func GetUniqueKey(obj unstructured.Unstructured) KindVersionName {
-	return KindVersionName{
-		Group:     obj.GetObjectKind().GroupVersionKind().Group,
-		Version:   obj.GetObjectKind().GroupVersionKind().Version,
-		Kind:      obj.GetKind(),
-		Name:      obj.GetName(),
-		Namespace: obj.GetNamespace(),
-	}
+	_ = "STUB: not implemented"
+	return *new(KindVersionName)
 }

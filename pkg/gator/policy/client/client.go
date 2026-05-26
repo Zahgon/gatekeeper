@@ -2,18 +2,12 @@ package client
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"time"
 
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/gator/policy/labels"
-	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 )
 
 // ConstraintTemplateGVR is the GroupVersionResource for ConstraintTemplates.
@@ -71,228 +65,105 @@ type K8sClient struct {
 }
 
 // NewK8sClient creates a new K8sClient using the default kubeconfig.
-func NewK8sClient() (*K8sClient, error) {
-	config, err := getKubeConfig()
-	if err != nil {
-		return nil, fmt.Errorf("getting kubeconfig: %w", err)
-	}
-
-	dynamicClient, err := dynamic.NewForConfig(config)
-	if err != nil {
-		return nil, fmt.Errorf("creating dynamic client: %w", err)
-	}
-
-	return &K8sClient{dynamicClient: dynamicClient}, nil
-}
+func NewK8sClient() (*K8sClient, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // NewK8sClientWithConfig creates a new K8sClient with the given config.
 func NewK8sClientWithConfig(config *rest.Config) (*K8sClient, error) {
-	dynamicClient, err := dynamic.NewForConfig(config)
-	if err != nil {
-		return nil, fmt.Errorf("creating dynamic client: %w", err)
-	}
-
-	return &K8sClient{dynamicClient: dynamicClient}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func getKubeConfig() (*rest.Config, error) {
+	_ = "STUB: not implemented"
 	// Try in-cluster config first
-	config, err := rest.InClusterConfig()
-	if err == nil {
-		return config, nil
-	}
-
-	// Fall back to kubeconfig
-	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-	configOverrides := &clientcmd.ConfigOverrides{}
-	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
-
-	return kubeConfig.ClientConfig()
+	return nil, nil
 }
+
+// Fall back to kubeconfig
 
 // GatekeeperInstalled checks if Gatekeeper CRDs are installed.
 func (c *K8sClient) GatekeeperInstalled(ctx context.Context) (bool, error) {
-	_, err := c.dynamicClient.Resource(ConstraintTemplateGVR).List(ctx, metav1.ListOptions{Limit: 1})
-	if err != nil {
-		if isCRDNotRegisteredError(err) {
-			return false, nil
-		}
-		return false, fmt.Errorf("checking Gatekeeper installation: %w", err)
-	}
-	return true, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 // ListManagedTemplates lists all ConstraintTemplates managed by gator.
 func (c *K8sClient) ListManagedTemplates(ctx context.Context) ([]InstalledPolicy, error) {
-	labelSelector := fmt.Sprintf("%s=%s", labels.LabelManagedBy, labels.ManagedByValue)
-	list, err := c.dynamicClient.Resource(ConstraintTemplateGVR).List(ctx, metav1.ListOptions{
-		LabelSelector: labelSelector,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("listing managed templates: %w", err)
-	}
-
-	policies := make([]InstalledPolicy, 0, len(list.Items))
-	for _, item := range list.Items {
-		if !labels.IsManagedByGator(&item) {
-			continue
-		}
-		policies = append(policies, InstalledPolicy{
-			Name:        item.GetName(),
-			Version:     labels.GetPolicyVersion(&item),
-			Bundle:      labels.GetBundle(&item),
-			InstalledAt: labels.GetInstalledAt(&item),
-			ManagedBy:   labels.ManagedByValue,
-		})
-	}
-
-	return policies, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // GetTemplate gets a ConstraintTemplate by name.
 func (c *K8sClient) GetTemplate(ctx context.Context, name string) (*unstructured.Unstructured, error) {
-	return c.dynamicClient.Resource(ConstraintTemplateGVR).Get(ctx, name, metav1.GetOptions{})
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // InstallTemplate installs or updates a ConstraintTemplate.
 func (c *K8sClient) InstallTemplate(ctx context.Context, template *unstructured.Unstructured) error {
-	existing, err := c.GetTemplate(ctx, template.GetName())
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// Create new
-			_, err = c.dynamicClient.Resource(ConstraintTemplateGVR).Create(ctx, template, metav1.CreateOptions{})
-			return err
-		}
-		return err
-	}
-
-	// Update existing
-	template.SetResourceVersion(existing.GetResourceVersion())
-	_, err = c.dynamicClient.Resource(ConstraintTemplateGVR).Update(ctx, template, metav1.UpdateOptions{})
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Create new
+
+// Update existing
 
 // InstallConstraint installs or updates a Constraint.
 func (c *K8sClient) InstallConstraint(ctx context.Context, constraint *unstructured.Unstructured) error {
-	gvr := schema.GroupVersionResource{
-		Group:    "constraints.gatekeeper.sh",
-		Version:  "v1beta1",
-		Resource: getConstraintResource(constraint.GetKind()),
-	}
-
-	existing, err := c.dynamicClient.Resource(gvr).Get(ctx, constraint.GetName(), metav1.GetOptions{})
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// Create new
-			_, err = c.dynamicClient.Resource(gvr).Create(ctx, constraint, metav1.CreateOptions{})
-			return err
-		}
-		return err
-	}
-
-	// Update existing
-	constraint.SetResourceVersion(existing.GetResourceVersion())
-	_, err = c.dynamicClient.Resource(gvr).Update(ctx, constraint, metav1.UpdateOptions{})
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Create new
+
+// Update existing
 
 // GetConstraint gets a Constraint by GVR and name.
 func (c *K8sClient) GetConstraint(ctx context.Context, gvr schema.GroupVersionResource, name string) (*unstructured.Unstructured, error) {
-	return c.dynamicClient.Resource(gvr).Get(ctx, name, metav1.GetOptions{})
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // DeleteTemplate deletes a ConstraintTemplate.
 func (c *K8sClient) DeleteTemplate(ctx context.Context, name string) error {
-	err := c.dynamicClient.Resource(ConstraintTemplateGVR).Delete(ctx, name, metav1.DeleteOptions{})
-	if errors.IsNotFound(err) {
-		return nil
-	}
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // DeleteConstraint deletes a Constraint.
 func (c *K8sClient) DeleteConstraint(ctx context.Context, gvr schema.GroupVersionResource, name string) error {
-	err := c.dynamicClient.Resource(gvr).Delete(ctx, name, metav1.DeleteOptions{})
-	if errors.IsNotFound(err) {
-		return nil
-	}
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // WaitForTemplateReady waits for a ConstraintTemplate to have status.created = true.
 func (c *K8sClient) WaitForTemplateReady(ctx context.Context, templateName string, timeout time.Duration) error {
-	deadline := time.Now().Add(timeout)
-	for time.Now().Before(deadline) {
-		template, err := c.dynamicClient.Resource(ConstraintTemplateGVR).Get(ctx, templateName, metav1.GetOptions{})
-		if err != nil {
-			if errors.IsNotFound(err) {
-				select {
-				case <-ctx.Done():
-					return ctx.Err()
-				case <-time.After(500 * time.Millisecond):
-					continue
-				}
-			}
-			return fmt.Errorf("getting template status: %w", err)
-		}
-
-		// Check if status.created is true
-		created, found, err := unstructured.NestedBool(template.Object, "status", "created")
-		if err == nil && found && created {
-			return nil
-		}
-
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(500 * time.Millisecond):
-			// Continue polling
-		}
-	}
-	return fmt.Errorf("timeout waiting for template %s to be ready", templateName)
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Check if status.created is true
+
+// Continue polling
 
 // WaitForConstraintCRD waits for the Constraint CRD to be available.
 func (c *K8sClient) WaitForConstraintCRD(ctx context.Context, kind string, timeout time.Duration) error {
-	gvr := schema.GroupVersionResource{
-		Group:    "constraints.gatekeeper.sh",
-		Version:  "v1beta1",
-		Resource: getConstraintResource(kind),
-	}
-
-	deadline := time.Now().Add(timeout)
-	for time.Now().Before(deadline) {
-		_, err := c.dynamicClient.Resource(gvr).List(ctx, metav1.ListOptions{Limit: 1})
-		if err == nil {
-			return nil
-		}
-		if !isCRDNotRegisteredError(err) {
-			return fmt.Errorf("checking constraint CRD availability: %w", err)
-		}
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(500 * time.Millisecond):
-			// Continue polling
-		}
-	}
-	return fmt.Errorf("timeout waiting for constraint CRD %s to be available", kind)
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// Continue polling
+
 func getConstraintResource(kind string) string {
+	_ = "STUB: not implemented"
 	// Gatekeeper constraint CRDs use lowercase kind as the resource name
 	// e.g., Kind=K8sPSPAppArmor -> resource=k8spspapparmor
-	return strings.ToLower(kind)
+	return ""
 }
 
 // isCRDNotRegisteredError checks if the error indicates the CRD/resource type is not registered.
 // This is different from IsNotFound which indicates the resource instance doesn't exist.
-func isCRDNotRegisteredError(err error) bool {
-	if err == nil {
-		return false
-	}
-	// Check for "no matches" error string which occurs when CRD is not yet registered
-	errStr := err.Error()
-	return strings.Contains(errStr, "no matches for kind") ||
-		strings.Contains(errStr, "the server could not find the requested resource")
-}
+func isCRDNotRegisteredError(err error) bool { _ = "STUB: not implemented"; return false }
+
+// Check for "no matches" error string which occurs when CRD is not yet registered

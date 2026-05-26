@@ -17,7 +17,6 @@ package parser
 
 import (
 	"errors"
-	"fmt"
 )
 
 var (
@@ -33,10 +32,6 @@ type invalidIntegerError struct {
 	s string
 }
 
-func (e invalidIntegerError) Error() string {
-	return fmt.Sprintf("invalid integer: %s", e.s)
-}
+func (e invalidIntegerError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (e invalidIntegerError) Is(target error) bool {
-	return errors.As(target, &invalidIntegerError{})
-}
+func (e invalidIntegerError) Is(target error) bool { _ = "STUB: not implemented"; return false }

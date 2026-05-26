@@ -45,5 +45,6 @@ func init() {
 }
 
 func matchSchema() apiextensions.JSONSchemaProps {
-	return *matchJSONSchemaProps.DeepCopy()
+	_ = "STUB: not implemented"
+	return *new(apiextensions.JSONSchemaProps)
 }

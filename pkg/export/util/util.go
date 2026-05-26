@@ -40,9 +40,7 @@ type ExportErr struct {
 	Message string      `json:"message"`
 }
 
-func (e ExportErr) Error() string {
-	return e.Message
-}
+func (e ExportErr) Error() string { _ = "STUB: not implemented"; return "" }
 
 type ExportError string
 

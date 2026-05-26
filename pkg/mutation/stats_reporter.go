@@ -1,11 +1,8 @@
 package mutation
 
 import (
-	"context"
-
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/metrics/exporters/view"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 )
@@ -60,13 +57,15 @@ type reporter struct{}
 
 // NewStatsReporter creates a reporter for webhook metrics.
 func NewStatsReporter() StatsReporter {
-	return &reporter{}
+	_ = "STUB: not implemented"
+
+	// ReportIterationConvergence reports the success or failure of the mutation system to converge.
+	// It also records the number of system iterations that were required to reach this end.
+	return *new(StatsReporter)
 }
 
-// ReportIterationConvergence reports the success or failure of the mutation system to converge.
-// It also records the number of system iterations that were required to reach this end.
 func (r *reporter) ReportIterationConvergence(scs SystemConvergenceStatus, iterations int) error {
+	_ = "STUB: not implemented"
 	// No need for an actual Context.
-	systemIterationsM.Record(context.Background(), int64(iterations), metric.WithAttributes(attribute.String(systemConvergenceKey, string(scs))))
 	return nil
 }

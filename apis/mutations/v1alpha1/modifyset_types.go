@@ -19,7 +19,6 @@ import (
 	"github.com/open-policy-agent/gatekeeper/v3/apis/status/v1beta1"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/mutation/match"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -80,35 +79,9 @@ type Values struct {
 	FromList []interface{} `json:"fromList,omitempty"`
 }
 
-func (in *Values) DeepCopy() *Values {
-	if in == nil {
-		return nil
-	}
+func (in *Values) DeepCopy() *Values { _ = "STUB: not implemented"; return nil }
 
-	var fromList []interface{}
-	if in.FromList != nil {
-		fromList = make([]interface{}, len(in.FromList))
-		for i := range fromList {
-			fromList[i] = runtime.DeepCopyJSONValue(in.FromList[i])
-		}
-	}
-
-	return &Values{
-		FromList: fromList,
-	}
-}
-
-func (in *Values) DeepCopyInto(out *Values) {
-	*in = *out
-
-	if in.FromList != nil {
-		fromList := make([]interface{}, len(in.FromList))
-		for i := range fromList {
-			fromList[i] = runtime.DeepCopyJSONValue(in.FromList[i])
-		}
-		out.FromList = fromList
-	}
-}
+func (in *Values) DeepCopyInto(out *Values) { _ = "STUB: not implemented"; return }
 
 // ModifySetStatus defines the observed state of ModifySet.
 type ModifySetStatus struct {

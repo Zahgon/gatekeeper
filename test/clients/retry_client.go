@@ -19,7 +19,6 @@ import (
 	"context"
 
 	"golang.org/x/time/rate"
-	"k8s.io/apimachinery/pkg/api/meta"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -39,79 +38,53 @@ type RetryClient struct {
 	client.Client
 }
 
-func NewRetryClient(c client.Client) *RetryClient {
-	return &RetryClient{
-		Client:  c,
-		Limiter: rate.NewLimiter(rate.Limit(defaultRefillRate), defaultLimitSize),
-	}
-}
+func NewRetryClient(c client.Client) *RetryClient { _ = "STUB: not implemented"; return nil }
 
 // retry will run the provided function, retrying if it fails due to rate limiting.
 // If context is canceled, it will return early.
 func retry(ctx context.Context, limiter *rate.Limiter, f func() error) error {
-	for {
-		if err := ctx.Err(); err != nil {
-			return err
-		}
-		err := f()
-
-		if meta.IsNoMatchError(err) {
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			default:
-				_ = limiter.Wait(ctx)
-				continue
-			}
-		}
-		return err
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *RetryClient) Get(ctx context.Context, key client.ObjectKey, obj client.Object, _ ...client.GetOption) error {
-	return retry(ctx, c.Limiter, func() error {
-		return c.Client.Get(ctx, key, obj)
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *RetryClient) List(ctx context.Context, list client.ObjectList, opts ...client.ListOption) error {
-	return retry(ctx, c.Limiter, func() error {
-		return c.Client.List(ctx, list, opts...)
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *RetryClient) Create(ctx context.Context, obj client.Object, opts ...client.CreateOption) error {
-	return retry(ctx, c.Limiter, func() error {
-		return c.Client.Create(ctx, obj, opts...)
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *RetryClient) Delete(ctx context.Context, obj client.Object, opts ...client.DeleteOption) error {
-	return retry(ctx, c.Limiter, func() error {
-		return c.Client.Delete(ctx, obj, opts...)
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *RetryClient) Update(ctx context.Context, obj client.Object, opts ...client.UpdateOption) error {
-	return retry(ctx, c.Limiter, func() error {
-		return c.Client.Update(ctx, obj, opts...)
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *RetryClient) Patch(ctx context.Context, obj client.Object, patch client.Patch, opts ...client.PatchOption) error {
-	return retry(ctx, c.Limiter, func() error {
-		return c.Client.Patch(ctx, obj, patch, opts...)
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *RetryClient) DeleteAllOf(ctx context.Context, obj client.Object, opts ...client.DeleteAllOfOption) error {
-	return retry(ctx, c.Limiter, func() error {
-		return c.Client.DeleteAllOf(ctx, obj, opts...)
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *RetryClient) Status() client.StatusWriter {
-	return &RetryStatusWriter{StatusWriter: c.Client.Status(), Limiter: c.Limiter}
+	_ = "STUB: not implemented"
+	return *new(client.StatusWriter)
 }
 
 type RetryStatusWriter struct {
@@ -120,13 +93,11 @@ type RetryStatusWriter struct {
 }
 
 func (c *RetryStatusWriter) Update(ctx context.Context, obj client.Object, opts ...client.SubResourceUpdateOption) error {
-	return retry(ctx, c.Limiter, func() error {
-		return c.StatusWriter.Update(ctx, obj, opts...)
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *RetryStatusWriter) Patch(ctx context.Context, obj client.Object, patch client.Patch, opts ...client.SubResourcePatchOption) error {
-	return retry(ctx, c.Limiter, func() error {
-		return c.StatusWriter.Patch(ctx, obj, patch, opts...)
-	})
+	_ = "STUB: not implemented"
+	return nil
 }

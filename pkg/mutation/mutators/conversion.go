@@ -11,21 +11,25 @@ import (
 // MutatorForAssign returns an AssignMutator built from
 // the given assign instance.
 func MutatorForAssign(a *mutationsunversioned.Assign) (*assign.Mutator, error) {
-	return assign.MutatorForAssign(a)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // MutatorForAssignMetadata builds an AssignMetadataMutator from the given AssignMetadata object.
 func MutatorForAssignMetadata(assignMeta *mutationsunversioned.AssignMetadata) (*assignmeta.Mutator, error) {
-	return assignmeta.MutatorForAssignMetadata(assignMeta)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // MutatorForModifySet builds a ModifySetMutator from the given ModifySet object.
 func MutatorForModifySet(modifySet *mutationsunversioned.ModifySet) (*modifyset.Mutator, error) {
-	return modifyset.MutatorForModifySet(modifySet)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // MutatorForAssignImage builds an AssignImageMutator from the given AssignImage
 // object.
 func MutatorForAssignImage(assignImage *mutationsunversioned.AssignImage) (*assignimage.Mutator, error) {
-	return assignimage.MutatorForAssignImage(assignImage)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

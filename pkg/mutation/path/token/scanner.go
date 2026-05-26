@@ -17,9 +17,6 @@ package token
 
 import (
 	"errors"
-	"fmt"
-	"strings"
-	"unicode/utf8"
 )
 
 const eof = rune(-1)
@@ -38,170 +35,59 @@ type Scanner struct {
 	err     error // Last error if any
 }
 
-func NewScanner(input string) *Scanner {
-	s := &Scanner{input: input}
-	s.read()
-	return s
-}
+func NewScanner(input string) *Scanner { _ = "STUB: not implemented"; return nil }
 
-func (s *Scanner) Next() Token {
-	var err error
-	tok := Token{Type: ERROR}
-	s.skipWhitespace()
+func (s *Scanner) Next() Token { _ = "STUB: not implemented"; return *new(Token) }
 
-	switch {
-	// A match on these first set of cases leaves s.ch positioned at the next character to process.
-	case isDigit(s.ch):
-		if tok.Literal, err = s.readInt(); err == nil {
-			tok.Type = INT
-		}
-	case isAlphaNum(s.ch):
-		if tok.Literal, err = s.readIdent(); err == nil {
-			tok.Type = IDENT
-		}
+// A match on these first set of cases leaves s.ch positioned at the next character to process.
 
-	default:
-		// Any of these cases require a subsequent call to s.read() (below) to position the next character.
-		switch s.ch {
-		case eof:
-			tok = Token{Type: EOF, Literal: ""}
-		case '.':
-			tok = Token{Type: SEPARATOR, Literal: string(s.ch)}
-		case '[':
-			tok = Token{Type: LBRACKET, Literal: string(s.ch)}
-		case ']':
-			tok = Token{Type: RBRACKET, Literal: string(s.ch)}
-		case '*':
-			tok = Token{Type: GLOB, Literal: string(s.ch)}
-		case ':':
-			tok = Token{Type: COLON, Literal: string(s.ch)}
-		case '"', '\'':
-			if tok.Literal, err = s.readString(); err == nil {
-				tok.Type = IDENT
-			}
-		default:
-			// default: current character is invalid at this location
-			s.setError(ErrInvalidCharacter)
-			tok = Token{Type: ERROR, Literal: string(s.ch)}
-		}
+// Any of these cases require a subsequent call to s.read() (below) to position the next character.
 
-		// Make progress
-		s.read()
-	}
+// default: current character is invalid at this location
 
-	return tok
-}
+// Make progress
 
 // read consumes the next rune and advances.
-func (s *Scanner) read() rune {
-	if s.readPos >= len(s.input) {
-		s.ch = eof
-		s.pos = len(s.input)
-		return eof
-	}
-	r, w := utf8.DecodeRuneInString(s.input[s.readPos:])
-	s.pos = s.readPos // Mark last read position
-	s.readPos += w    // Advance for next read
-	s.ch = r
-	return r
-}
+func (s *Scanner) read() rune { _ = "STUB: not implemented"; return 0 }
+
+// Mark last read position
+// Advance for next read
 
 // readString consumes a string token.
 func (s *Scanner) readString() (string, error) {
-	quote := s.ch // Will be ' or "
-	var out strings.Builder
-
-	for {
-		s.read()
-		switch s.ch {
-		case quote:
-			// String terminated
-			return out.String(), nil
-		case '\\':
-			// Escaped character
-			s.read()
-			if s.ch == eof {
-				continue
-			}
-			out.WriteRune(s.ch)
-		case eof:
-			// Unterminated string
-			s.setError(ErrUnterminatedString)
-			return out.String(), s.err
-
-		default:
-			out.WriteRune(s.ch)
-		}
-	}
+	_ = "STUB: not implemented"
+	// Will be ' or "
+	return "", nil
 }
 
-func (s *Scanner) readIdent() (string, error) {
-	start := s.pos
-	for isAlphaNum(s.ch) {
-		s.read()
-	}
-	return s.input[start:s.pos], s.err
-}
+// String terminated
+
+// Escaped character
+
+// Unterminated string
+
+func (s *Scanner) readIdent() (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 // readInt scans a (positive) integer. Signs are not supported.
-func (s *Scanner) readInt() (string, error) {
-	start := s.pos
-	for isDigit(s.ch) {
-		s.read()
-	}
-	return s.input[start:s.pos], s.err
-}
+func (s *Scanner) readInt() (string, error) { _ = "STUB: not implemented"; return "", nil }
 
-func (s *Scanner) setError(err error) {
-	s.err = ScanError{
-		Inner:    err,
-		Position: s.pos,
-	}
-}
+func (s *Scanner) setError(err error) { _ = "STUB: not implemented"; return }
 
 // isSpace returns true if the passed rune is a supported whitespace character.
-func isSpace(r rune) bool {
-	return r == ' ' || r == '\t' || r == '\r' || r == '\n'
-}
+func isSpace(r rune) bool { _ = "STUB: not implemented"; return false }
 
-func isAlphaNum(r rune) bool {
-	switch {
-	case 'a' <= r && r <= 'z':
-	case 'A' <= r && r <= 'Z':
-	case '0' <= r && r <= '9':
-	case r == '_':
-	case r == '-':
+func isAlphaNum(r rune) bool { _ = "STUB: not implemented"; return false }
 
-	default:
-		return false
-	}
-	return true
-}
+func isDigit(r rune) bool { _ = "STUB: not implemented"; return false }
 
-func isDigit(r rune) bool {
-	return '0' <= r && r <= '9'
-}
-
-func (s *Scanner) skipWhitespace() {
-	for isSpace(s.ch) {
-		s.read()
-	}
-}
+func (s *Scanner) skipWhitespace() { _ = "STUB: not implemented"; return }
 
 type ScanError struct {
 	Inner    error
 	Position int
 }
 
-func (e ScanError) Error() string {
-	var innerMsg string
-	if e.Inner != nil {
-		innerMsg = e.Inner.Error()
-	}
-	return fmt.Sprintf("error at position %d: %s", e.Position, innerMsg)
-}
+func (e ScanError) Error() string { _ = "STUB: not implemented"; return "" }
 
 // Unwrap allows errors.Is() to inspect the underlying error.
-func (e ScanError) Unwrap() error {
-	return e.Inner
-}
+func (e ScanError) Unwrap() error { _ = "STUB: not implemented"; return nil }

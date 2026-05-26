@@ -17,8 +17,6 @@ package syncutil
 
 import (
 	"context"
-	"errors"
-	"time"
 
 	"k8s.io/apimachinery/pkg/util/wait"
 )
@@ -36,15 +34,6 @@ import (
 //
 // Adapted from wait.ExponentialBackoff in https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/util/wait/wait.go
 func BackoffWithContext(ctx context.Context, backoff wait.Backoff, condition wait.ConditionFunc) error {
-	for ctx.Err() == nil {
-		if ok, err := condition(); err != nil || ok {
-			return err
-		}
-		select {
-		case <-time.After(backoff.Step()):
-		case <-ctx.Done():
-			return wait.ErrorInterrupted(errors.New("context canceled during backoff"))
-		}
-	}
-	return wait.ErrorInterrupted(errors.New("maximum backoff retries exceeded"))
+	_ = "STUB: not implemented"
+	return nil
 }

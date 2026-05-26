@@ -20,12 +20,4 @@ type Waiter interface {
 }
 
 // WaitAll waits (blocks) for multiple Wait()-ables and returns the first non-nil error.
-func WaitAll(w ...Waiter) error {
-	var final error
-	for _, f := range w {
-		if err := f.Wait(); err != nil && final == nil {
-			final = err
-		}
-	}
-	return final
-}
+func WaitAll(w ...Waiter) error { _ = "STUB: not implemented"; return nil }

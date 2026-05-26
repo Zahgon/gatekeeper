@@ -20,16 +20,16 @@ import (
 	"net/url"
 	"time"
 
-	clientmetrics "k8s.io/client-go/tools/metrics"
 	_ "sigs.k8s.io/controller-runtime/pkg/metrics" // Needed for init() side effect
 )
 
 // DisableRESTClientMetrics disables the rest client latency histograms configured by
 // controller-runtime in sigs.k8s.io/controller-runtime/pkg/metrics/client_go_adapter.go#registerClientMetrics.
-func DisableRESTClientMetrics() {
-	clientmetrics.RequestLatency = noopLatency{}
-}
+func DisableRESTClientMetrics() { _ = "STUB: not implemented"; return }
 
 type noopLatency struct{}
 
-func (noopLatency) Observe(context.Context, string, url.URL, time.Duration) {}
+func (noopLatency) Observe(context.Context, string, url.URL, time.Duration) {
+	_ = "STUB: not implemented"
+	return
+}

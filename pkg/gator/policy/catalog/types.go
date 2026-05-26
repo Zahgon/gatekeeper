@@ -1,7 +1,6 @@
 package catalog
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
@@ -66,32 +65,16 @@ type Policy struct {
 // GetPolicy returns the policy with the given name, or nil if not found.
 // Uses O(1) indexed lookup after first call. Thread-safe.
 func (c *PolicyCatalog) GetPolicy(name string) *Policy {
+	_ = "STUB: not implemented"
 	// Build index lazily on first lookup (thread-safe)
-	c.policyIndexOnce.Do(func() {
-		c.policyIndex = make(map[string]int, len(c.Policies))
-		for i := range c.Policies {
-			c.policyIndex[c.Policies[i].Name] = i
-		}
-	})
-	if idx, ok := c.policyIndex[name]; ok {
-		return &c.Policies[idx]
-	}
 	return nil
 }
 
 // GetBundle returns the bundle with the given name, or nil if not found.
 // Uses O(1) indexed lookup after first call. Thread-safe.
 func (c *PolicyCatalog) GetBundle(name string) *Bundle {
+	_ = "STUB: not implemented"
 	// Build index lazily on first lookup (thread-safe)
-	c.bundleIndexOnce.Do(func() {
-		c.bundleIndex = make(map[string]int, len(c.Bundles))
-		for i := range c.Bundles {
-			c.bundleIndex[c.Bundles[i].Name] = i
-		}
-	})
-	if idx, ok := c.bundleIndex[name]; ok {
-		return &c.Bundles[idx]
-	}
 	return nil
 }
 
@@ -101,72 +84,29 @@ const MaxInheritanceDepth = 10
 // ResolveBundlePolicies returns all policy names for a bundle, including inherited policies.
 // Inheritance is processed parent-first (deepest ancestor first), so child policies can override.
 func (c *PolicyCatalog) ResolveBundlePolicies(bundleName string) ([]string, error) {
-	bundle := c.GetBundle(bundleName)
-	if bundle == nil {
-		return nil, &BundleNotFoundError{Name: bundleName}
-	}
-
-	// First, build the inheritance chain from child to ancestors
-	var inheritanceChain []*Bundle
-	visitedBundles := make(map[string]bool)
-	current := bundle
-
-	for current != nil {
-		// Check for circular inheritance
-		if visitedBundles[current.Name] {
-			return nil, fmt.Errorf("circular inheritance detected in bundle: %s", current.Name)
-		}
-		visitedBundles[current.Name] = true
-
-		// Check depth limit
-		if len(inheritanceChain) >= MaxInheritanceDepth {
-			return nil, fmt.Errorf("bundle inheritance exceeds maximum depth of %d", MaxInheritanceDepth)
-		}
-
-		inheritanceChain = append(inheritanceChain, current)
-
-		if current.Inherits == "" {
-			break
-		}
-		parent := c.GetBundle(current.Inherits)
-		if parent == nil {
-			return nil, &BundleNotFoundError{Name: current.Inherits}
-		}
-		current = parent
-	}
-
-	// Now process in reverse order (parent-first, deepest ancestor first)
-	// This ensures parent policies are added first, and child policies can be deduplicated
-	seen := make(map[string]bool)
-	var policies []string
-
-	for i := len(inheritanceChain) - 1; i >= 0; i-- {
-		b := inheritanceChain[i]
-		for _, p := range b.Policies {
-			if !seen[p] {
-				seen[p] = true
-				policies = append(policies, p)
-			}
-		}
-	}
-
-	return policies, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// First, build the inheritance chain from child to ancestors
+
+// Check for circular inheritance
+
+// Check depth limit
+
+// Now process in reverse order (parent-first, deepest ancestor first)
+// This ensures parent policies are added first, and child policies can be deduplicated
 
 // BundleNotFoundError is returned when a bundle cannot be found.
 type BundleNotFoundError struct {
 	Name string
 }
 
-func (e *BundleNotFoundError) Error() string {
-	return "bundle not found: " + e.Name
-}
+func (e *BundleNotFoundError) Error() string { _ = "STUB: not implemented"; return "" }
 
 // PolicyNotFoundError is returned when a policy cannot be found.
 type PolicyNotFoundError struct {
 	Name string
 }
 
-func (e *PolicyNotFoundError) Error() string {
-	return "policy not found: " + e.Name
-}
+func (e *PolicyNotFoundError) Error() string { _ = "STUB: not implemented"; return "" }

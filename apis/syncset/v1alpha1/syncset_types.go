@@ -16,11 +16,8 @@ type GVKEntry struct {
 }
 
 func (e *GVKEntry) ToGroupVersionKind() schema.GroupVersionKind {
-	return schema.GroupVersionKind{
-		Group:   e.Group,
-		Version: e.Version,
-		Kind:    e.Kind,
-	}
+	_ = "STUB: not implemented"
+	return *new(schema.GroupVersionKind)
 }
 
 // +kubebuilder:resource:scope=Cluster

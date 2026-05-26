@@ -2,7 +2,6 @@ package testdriver
 
 import (
 	"context"
-	"fmt"
 )
 
 const (
@@ -24,29 +23,22 @@ type FakeConnection struct {
 }
 
 func (r *Connection) Publish(_ context.Context, _ string, _ interface{}, _ string) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (r *Connection) CloseConnection(connectionName string) error {
-	delete(r.openConnections, connectionName)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (r *Connection) UpdateConnection(_ context.Context, connectionName string, config interface{}) error {
-	name, ok := config.(string)
-	if !ok {
-		return fmt.Errorf("invalid type assertion, config is not in expected format")
-	}
-	r.openConnections[connectionName] = FakeConnection{name: name}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (r *Connection) CreateConnection(_ context.Context, connectionName string, config interface{}) error {
-	name, ok := config.(string)
-	if !ok {
-		return fmt.Errorf("invalid type assertion, config is not in expected format")
-	}
-	r.openConnections[connectionName] = FakeConnection{name: name}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -64,28 +56,21 @@ type FakeErrConnection struct {
 }
 
 func (r *ErrConnection) Publish(_ context.Context, _ string, _ interface{}, _ string) error {
-	return fmt.Errorf("error publishing message to testdriver")
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (r *ErrConnection) CloseConnection(connectionName string) error {
-	delete(r.openErrConnections, connectionName)
-	return fmt.Errorf("error closing connection")
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (r *ErrConnection) UpdateConnection(_ context.Context, connectionName string, config interface{}) error {
-	name, ok := config.(string)
-	if !ok {
-		return fmt.Errorf("invalid type assertion, config is not in expected format")
-	}
-	r.openErrConnections[connectionName] = FakeErrConnection{name: name}
-	return fmt.Errorf("error updating connection")
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (r *ErrConnection) CreateConnection(_ context.Context, connectionName string, config interface{}) error {
-	name, ok := config.(string)
-	if !ok {
-		return fmt.Errorf("invalid type assertion, config is not in expected format")
-	}
-	r.openErrConnections[connectionName] = FakeErrConnection{name: name}
-	return fmt.Errorf("error creating connection")
+	_ = "STUB: not implemented"
+	return nil
 }

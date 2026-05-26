@@ -6,16 +6,13 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"strings"
 
 	"github.com/open-policy-agent/gatekeeper/v3/apis"
 	"github.com/open-policy-agent/gatekeeper/v3/apis/config/v1alpha1"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/controller/config/process"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/keys"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	admissionv1 "k8s.io/api/admission/v1"
 	authenticationv1 "k8s.io/api/authentication/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8sruntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/client-go/tools/record"
@@ -66,29 +63,15 @@ var (
 	CertCNName                         = flag.String("client-cn-name", "kube-apiserver", "expected CN name on the client certificate attached by apiserver in requests to the webhook")
 )
 
-func ParseTLSVersion(v string) (uint16, error) {
-	switch v {
-	case "":
-		return tls.VersionTLS10, nil
-	case "1.0":
-		return tls.VersionTLS10, nil
-	case "1.1":
-		return tls.VersionTLS11, nil
-	case "1.2":
-		return tls.VersionTLS12, nil
-	case "1.3":
-		return tls.VersionTLS13, nil
-	default:
-		return 0, errors.New("invalid TLS version. Must be one of: 1.0, 1.1, 1.2, or 1.3")
-	}
-}
+func ParseTLSVersion(v string) (uint16, error) { _ = "STUB: not implemented"; return 0, nil }
 
 func init() {
 	_ = apis.AddToScheme(runtimeScheme)
 }
 
 func isGkServiceAccount(user authenticationv1.UserInfo) bool {
-	return user.Username == serviceaccount
+	_ = "STUB: not implemented"
+	return false
 }
 
 type webhookHandler struct {
@@ -105,97 +88,38 @@ type webhookHandler struct {
 }
 
 func (h *webhookHandler) getConfig(ctx context.Context) (*v1alpha1.Config, error) {
-	if h.injectedConfig != nil {
-		return h.injectedConfig, nil
-	}
-	if h.client == nil {
-		return nil, errors.New("no client available to retrieve validation config")
-	}
-	cfg := &v1alpha1.Config{}
-	return cfg, h.client.Get(ctx, keys.Config, cfg)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // isGatekeeperResource returns true if the request relates to a gatekeeper resource.
 func (h *webhookHandler) isGatekeeperResource(req *admission.Request) bool {
+	_ = "STUB: not implemented"
 	// Directly accessing the Kind field from AdmissionRequest, as it is embedded within admission.Request.
-	if req.Kind.Group == "templates.gatekeeper.sh" ||
-		req.Kind.Group == "constraints.gatekeeper.sh" ||
-		req.Kind.Group == mutationsGroup ||
-		req.Kind.Group == "config.gatekeeper.sh" ||
-		req.Kind.Group == externalDataGroup ||
-		req.Kind.Group == "expansion.gatekeeper.sh" ||
-		req.Kind.Group == "status.gatekeeper.sh" {
-		return true
-	}
-
 	return false
 }
 
 func (h *webhookHandler) tracingLevel(ctx context.Context, req *admission.Request) (bool, bool) {
-	cfg, _ := h.getConfig(ctx)
-	traceEnabled := false
-	dump := false
-	for _, trace := range cfg.Spec.Validation.Traces {
-		if trace.User != req.UserInfo.Username {
-			continue
-		}
-		gvk := v1alpha1.GVK{
-			Group:   req.Kind.Group,
-			Version: req.Kind.Version,
-			Kind:    req.Kind.Kind,
-		}
-		if gvk == trace.Kind {
-			traceEnabled = true
-			if strings.EqualFold(trace.Dump, "All") {
-				dump = true
-			}
-		}
-	}
-	return traceEnabled, dump
+	_ = "STUB: not implemented"
+	return false, false
 }
 
 func (h *webhookHandler) skipExcludedNamespace(req *admissionv1.AdmissionRequest, excludedProcess process.Process) (bool, error) {
-	var data []byte
-	if req.Operation == admissionv1.Delete {
-		// oldObject is the existing object.
-		// It is null for DELETE operations in API servers prior to v1.15.0.
-		// https://github.com/kubernetes/website/pull/14671
-		if req.OldObject.Raw == nil {
-			return false, errOldObjectIsNil
-		}
-
-		// For admission webhooks registered for DELETE operations on k8s built APIs or CRDs,
-		// the apiserver now sends the existing object as admissionRequest.Request.OldObject to the webhook
-		// object is the new object being admitted.
-		// It is null for DELETE operations.
-		// https://github.com/kubernetes/kubernetes/pull/76346
-		data = req.OldObject.Raw
-	} else {
-		data = req.Object.Raw
-	}
-
-	obj := &unstructured.Unstructured{}
-	if _, _, err := deserializer.Decode(data, nil, obj); err != nil {
-		return false, err
-	}
-	obj.SetNamespace(req.Namespace)
-
-	isNamespaceExcluded, err := h.processExcluder.IsNamespaceExcluded(excludedProcess, obj)
-	if err != nil {
-		return false, err
-	}
-
-	return isNamespaceExcluded, err
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
+// oldObject is the existing object.
+// It is null for DELETE operations in API servers prior to v1.15.0.
+// https://github.com/kubernetes/website/pull/14671
+
+// For admission webhooks registered for DELETE operations on k8s built APIs or CRDs,
+// the apiserver now sends the existing object as admissionRequest.Request.OldObject to the webhook
+// object is the new object being admitted.
+// It is null for DELETE operations.
+// https://github.com/kubernetes/kubernetes/pull/76346
+
 func GetCertNameVerifier() func(cs tls.ConnectionState) error {
-	return func(cs tls.ConnectionState) error {
-		if len(cs.PeerCertificates) > 0 {
-			if cs.PeerCertificates[0].Subject.CommonName != *CertCNName {
-				return fmt.Errorf("x509: subject with cn=%s do not identify as %s", cs.PeerCertificates[0].Subject.CommonName, *CertCNName)
-			}
-			return nil
-		}
-		return fmt.Errorf("failed to verify CN name of certificate")
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

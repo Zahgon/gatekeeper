@@ -22,30 +22,22 @@ type ExitError struct {
 
 // Error implements the error interface.
 func (e *ExitError) Error() string {
-	return e.Message
+	_ = "STUB: not implemented"
+
+	// NewExitError creates a new ExitError with the given code and message.
+	return ""
 }
 
-// NewExitError creates a new ExitError with the given code and message.
-func NewExitError(code int, message string) *ExitError {
-	return &ExitError{Code: code, Message: message}
-}
+func NewExitError(code int, message string) *ExitError { _ = "STUB: not implemented"; return nil }
 
 // NewGeneralError creates an ExitError for general errors.
-func NewGeneralError(message string) *ExitError {
-	return &ExitError{Code: ExitGeneralError, Message: message}
-}
+func NewGeneralError(message string) *ExitError { _ = "STUB: not implemented"; return nil }
 
 // NewClusterError creates an ExitError for cluster errors.
-func NewClusterError(message string) *ExitError {
-	return &ExitError{Code: ExitClusterError, Message: message}
-}
+func NewClusterError(message string) *ExitError { _ = "STUB: not implemented"; return nil }
 
 // NewConflictError creates an ExitError for conflict errors.
-func NewConflictError(message string) *ExitError {
-	return &ExitError{Code: ExitConflictError, Message: message}
-}
+func NewConflictError(message string) *ExitError { _ = "STUB: not implemented"; return nil }
 
 // NewPartialSuccessError creates an ExitError for partial success.
-func NewPartialSuccessError(message string) *ExitError {
-	return &ExitError{Code: ExitPartialSuccess, Message: message}
-}
+func NewPartialSuccessError(message string) *ExitError { _ = "STUB: not implemented"; return nil }

@@ -10,10 +10,6 @@ func init() {
 	views = []metric.View{}
 }
 
-func Register(v ...metric.View) {
-	views = append(views, v...)
-}
+func Register(v ...metric.View) { _ = "STUB: not implemented"; return }
 
-func Views() []metric.View {
-	return views
-}
+func Views() []metric.View { _ = "STUB: not implemented"; return nil }

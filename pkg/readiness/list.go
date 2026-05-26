@@ -17,19 +17,15 @@ package readiness
 
 import (
 	"context"
-	"errors"
-	"time"
 
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/syncutil"
-	"k8s.io/apimachinery/pkg/api/meta"
-	"k8s.io/client-go/util/retry"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type listerFunc func(ctx context.Context, out client.ObjectList, opts ...client.ListOption) error
 
 func (f listerFunc) List(ctx context.Context, out client.ObjectList, opts ...client.ListOption) error {
-	return f(ctx, out, opts...)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // retryLister returns a delegating lister that retries until it succeeds or
@@ -38,39 +34,15 @@ func (f listerFunc) List(ctx context.Context, out client.ObjectList, opts ...cli
 // the predicate returns false, the error is terminal and the operation will be
 // abandoned.  If predicate is nil, all errors are considered recoverable.
 func retryLister(r Lister, predicate retryPredicate) Lister {
-	return listerFunc(func(ctx context.Context, out client.ObjectList, opts ...client.ListOption) error {
-		if out == nil {
-			return errors.New("nil output resource")
-		}
-		gvk := out.GetObjectKind().GroupVersionKind()
-
-		backoff := retry.DefaultBackoff
-		backoff.Cap = 5 * time.Second
-		err := syncutil.BackoffWithContext(ctx, backoff, func() (bool, error) {
-			err := r.List(ctx, out, opts...)
-			if err != nil {
-				if ctx.Err() != nil {
-					// Give up when our parent context is canceled
-					return false, err
-				}
-				if predicate != nil && !predicate(err) {
-					return false, err
-				}
-				// Log and retry w/ backoff
-				log.V(1).Info("transient issue while listing, retrying...", "gvk", gvk, "err", err)
-				return false, nil
-			}
-
-			// Success
-			return true, nil
-		})
-		if err != nil {
-			log.Error(err, "listing", "gvk", gvk, "err", err)
-			return err
-		}
-		return nil
-	})
+	_ = "STUB: not implemented"
+	return *new(Lister)
 }
+
+// Give up when our parent context is canceled
+
+// Log and retry w/ backoff
+
+// Success
 
 // retryPredicate is a function that determines whether an error is recoverable
 // in the context of a retryable operation.  If the predicate returns true, the
@@ -79,18 +51,23 @@ type retryPredicate func(err error) bool
 
 // retryAll is a retryPredicate that will retry any error.
 func retryAll(_ error) bool {
-	return true
-}
+	_ = "STUB: not implemented"
 
-// retryNone is a retryPredicate that will never retry an error.
-func retryNone(_ error) bool {
+	// retryNone is a retryPredicate that will never retry an error.
 	return false
 }
 
-// retryUnlessUnregistered is a retryPredicate that retries all errors except
-// *NoResourceMatchError, *NoKindMatchError, e.g. a resource was not registered to
-// the RESTMapper.
+func retryNone(_ error) bool {
+	_ = "STUB: not implemented"
+
+	// retryUnlessUnregistered is a retryPredicate that retries all errors except
+	// *NoResourceMatchError, *NoKindMatchError, e.g. a resource was not registered to
+	// the RESTMapper.
+	return false
+}
+
 func retryUnlessUnregistered(err error) bool {
+	_ = "STUB: not implemented"
 	// NoKindMatchError is non-recoverable, otherwise we'll retry.
-	return !meta.IsNoMatchError(err)
+	return false
 }

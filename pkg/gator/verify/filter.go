@@ -1,11 +1,7 @@
 package verify
 
 import (
-	"fmt"
 	"regexp"
-	"strings"
-
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/gator"
 )
 
 type Filter interface {
@@ -46,69 +42,39 @@ type Filter interface {
 // - Test: "forbid-foo-label", Case: "empty-object"
 // - Test: "forbid-foo-label", Case: "another-empty-object"
 // - Test: "require-bar-annotation", Case: "empty-object".
-func NewFilter(filter string) (Filter, error) {
-	if filter == "" {
-		return &nilFilter{}, nil
-	}
-
-	filters := strings.Split(filter, "//")
-
-	switch len(filters) {
-	case 1:
-		return newOrFilter(filters[0])
-	case 2:
-		return newAndFilter(filters[0], filters[1])
-	default:
-		return nil, fmt.Errorf(`%w: a filter may include at most one "//"`, gator.ErrInvalidFilter)
-	}
-}
+func NewFilter(filter string) (Filter, error) { _ = "STUB: not implemented"; return *new(Filter), nil }
 
 // nilFilter matches all tests.
 type nilFilter struct{}
 
 var _ Filter = &nilFilter{}
 
-func (f *nilFilter) MatchesTest(*Test) bool {
-	return true
-}
+func (f *nilFilter) MatchesTest(*Test) bool { _ = "STUB: not implemented"; return false }
 
 func (f *nilFilter) MatchesCase(string, string) bool {
-	return true
+	_ = "STUB: not implemented"
+
+	// orFilter matches:
+	// 1) Tests which are matched by regex.
+	// 2) Tests which contain a Case matched by regex.
+	// 3) Cases which are matched by regex.
+	return false
 }
 
-// orFilter matches:
-// 1) Tests which are matched by regex.
-// 2) Tests which contain a Case matched by regex.
-// 3) Cases which are matched by regex.
 type orFilter struct {
 	regex *regexp.Regexp
 }
 
 func newOrFilter(filter string) (Filter, error) {
-	regex, err := regexp.Compile(filter)
-	if err != nil {
-		return nil, fmt.Errorf("%w: %w", gator.ErrInvalidFilter, err)
-	}
-
-	return &orFilter{regex: regex}, nil
+	_ = "STUB: not implemented"
+	return *new(Filter), nil
 }
 
-func (f *orFilter) MatchesTest(t *Test) bool {
-	if f.regex.MatchString(t.Name) {
-		return true
-	}
-
-	for _, c := range t.Cases {
-		if f.MatchesCase(t.Name, c.Name) {
-			return true
-		}
-	}
-
-	return false
-}
+func (f *orFilter) MatchesTest(t *Test) bool { _ = "STUB: not implemented"; return false }
 
 func (f *orFilter) MatchesCase(testName, caseName string) bool {
-	return f.regex.MatchString(caseName) || f.regex.MatchString(testName)
+	_ = "STUB: not implemented"
+	return false
 }
 
 // andFilter matches Cases which match caseRegex which are in Tests which match
@@ -121,23 +87,13 @@ type andFilter struct {
 var _ Filter = &andFilter{}
 
 func newAndFilter(testFilter, caseFilter string) (Filter, error) {
-	testRegex, err := regexp.Compile(testFilter)
-	if err != nil {
-		return nil, fmt.Errorf("%w: %w", gator.ErrInvalidFilter, err)
-	}
-
-	caseRegex, err := regexp.Compile(caseFilter)
-	if err != nil {
-		return nil, fmt.Errorf("%w: %w", gator.ErrInvalidFilter, err)
-	}
-
-	return &andFilter{testRegex: testRegex, caseRegex: caseRegex}, nil
+	_ = "STUB: not implemented"
+	return *new(Filter), nil
 }
 
-func (f *andFilter) MatchesTest(t *Test) bool {
-	return f.testRegex.MatchString(t.Name)
-}
+func (f *andFilter) MatchesTest(t *Test) bool { _ = "STUB: not implemented"; return false }
 
 func (f *andFilter) MatchesCase(testName, caseName string) bool {
-	return f.caseRegex.MatchString(caseName) && f.testRegex.MatchString(testName)
+	_ = "STUB: not implemented"
+	return false
 }

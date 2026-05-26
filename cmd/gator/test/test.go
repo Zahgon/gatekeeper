@@ -1,20 +1,11 @@
 package test
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"os"
-	"strings"
 
 	"github.com/open-policy-agent/frameworks/constraint/pkg/instrumentation"
-	cmdutils "github.com/open-policy-agent/gatekeeper/v3/cmd/gator/util"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/gator"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/gator/reader"
 	"github.com/open-policy-agent/gatekeeper/v3/pkg/gator/test"
-	"github.com/open-policy-agent/gatekeeper/v3/pkg/util"
 	"github.com/spf13/cobra"
-	"go.yaml.in/yaml/v3"
 )
 
 const (
@@ -80,176 +71,16 @@ func init() {
 	Cmd.Flags().BoolVarP(&flagVerbose, flagNameVerbose, "v", false, "print extended test output")
 }
 
-func run(_ *cobra.Command, _ []string) {
-	unstrucs, err := reader.ReadSources(flagFilenames, flagImages, flagTempDir)
-	if err != nil {
-		cmdutils.ErrFatalf("reading: %v", err)
-	}
-	if len(unstrucs) == 0 {
-		cmdutils.ErrFatalf("no input data identified")
-	}
+func run(_ *cobra.Command, _ []string) { _ = "STUB: not implemented"; return }
 
-	printBuf := gator.NewPrintBuffer(gator.DefaultPrintBufferLimit)
-
-	var opts []gator.Opt
-	if flagIncludeTrace {
-		opts = append(opts, test.WithTrace())
-	}
-	if flagGatherStats {
-		opts = append(opts, test.WithGatherStats())
-	}
-	if flagEnableK8sCel {
-		opts = append(opts, test.WithK8sCEL(flagGatherStats))
-	}
-	if flagVerbose {
-		opts = append(opts, gator.WithPrintHook(printBuf))
-	}
-
-	responses, err := test.Test(unstrucs, opts...)
-	if err != nil {
-		cmdutils.ErrFatalf("auditing objects: %v", err)
-	}
-	results := responses.Results()
-
-	fmt.Print(formatOutput(flagOutput, results, responses.StatsEntries))
-
-	if printBuf.Len() > 0 {
-		fmt.Printf("\n%s\n", printBuf.String())
-	}
-
-	// Whether or not we return non-zero depends on whether we have a `deny`
-	// enforcementAction on one of the violated constraints
-	exitCode := 0
-	if enforceableFailures(results) {
-		exitCode = 1
-	}
-	os.Exit(exitCode)
-}
+// Whether or not we return non-zero depends on whether we have a `deny`
+// enforcementAction on one of the violated constraints
 
 func formatOutput(flagOutput string, allResults []*test.GatorResult, stats []*instrumentation.StatsEntry) string {
-	var results []*test.GatorResult
-	for _, result := range allResults {
-		if flagDenyOnly && !enforceableFailure(result) {
-			continue
-		}
-		results = append(results, result)
-	}
-	switch strings.ToLower(flagOutput) {
-	case stringJSON:
-		var jsonB []byte
-		var err error
-
-		if stats != nil {
-			statsAndResults := map[string]interface{}{"results": results, "stats": stats}
-			jsonB, err = json.MarshalIndent(statsAndResults, "", fourSpaceTab)
-			if err != nil {
-				cmdutils.ErrFatalf("marshaling validation json results and stats: %v", err)
-			}
-		} else {
-			jsonB, err = json.MarshalIndent(results, "", fourSpaceTab)
-			if err != nil {
-				cmdutils.ErrFatalf("marshaling validation json results: %v", err)
-			}
-		}
-
-		return string(jsonB)
-	case stringYAML:
-		yamlResults := test.GetYamlFriendlyResults(results)
-		var yamlb []byte
-
-		if stats != nil {
-			statsAndResults := map[string]interface{}{"results": yamlResults, "stats": stats}
-
-			statsJSONB, err := json.Marshal(statsAndResults)
-			if err != nil {
-				cmdutils.ErrFatalf("pre-marshaling stats to json: %v", err)
-			}
-
-			statsAndResultsUnmarshalled := struct {
-				Results []*test.YamlGatorResult
-				Stats   []*instrumentation.StatsEntry
-			}{}
-
-			err = json.Unmarshal(statsJSONB, &statsAndResultsUnmarshalled)
-			if err != nil {
-				cmdutils.ErrFatalf("pre-unmarshaling stats from json: %v", err)
-			}
-
-			yamlb, err = yaml.Marshal(statsAndResultsUnmarshalled)
-			if err != nil {
-				cmdutils.ErrFatalf("marshaling validation yaml results and stats: %v", err)
-			}
-		} else {
-			jsonb, err := json.Marshal(yamlResults)
-			if err != nil {
-				cmdutils.ErrFatalf("pre-marshaling results to json: %v", err)
-			}
-
-			unmarshalled := []*test.YamlGatorResult{}
-			err = json.Unmarshal(jsonb, &unmarshalled)
-			if err != nil {
-				cmdutils.ErrFatalf("pre-unmarshaling results from json: %v", err)
-			}
-
-			yamlb, err = yaml.Marshal(unmarshalled)
-			if err != nil {
-				cmdutils.ErrFatalf("marshaling validation yaml results: %v", err)
-			}
-		}
-
-		return string(yamlb)
-	case stringHumanFriendly:
-	default:
-		var buf bytes.Buffer
-		if len(results) > 0 {
-			for _, result := range results {
-				obj := fmt.Sprintf("%s/%s %s",
-					result.ViolatingObject.GetAPIVersion(),
-					result.ViolatingObject.GetKind(),
-					result.ViolatingObject.GetName(),
-				)
-				if result.ViolatingObject.GetNamespace() != "" {
-					obj = fmt.Sprintf("%s/%s %s/%s",
-						result.ViolatingObject.GetAPIVersion(),
-						result.ViolatingObject.GetKind(),
-						result.ViolatingObject.GetNamespace(),
-						result.ViolatingObject.GetName(),
-					)
-				}
-				buf.WriteString(fmt.Sprintf("%s: [%q] Message: %q\n",
-					obj,
-					result.Constraint.GetName(),
-					result.Msg,
-				))
-
-				if result.Trace != nil {
-					buf.WriteString(fmt.Sprintf("Trace: %v", *result.Trace))
-				}
-			}
-		}
-		return buf.String()
-	}
-
+	_ = "STUB: not implemented"
 	return ""
 }
 
-func enforceableFailures(results []*test.GatorResult) bool {
-	for _, result := range results {
-		if enforceableFailure(result) {
-			return true
-		}
-	}
-	return false
-}
+func enforceableFailures(results []*test.GatorResult) bool { _ = "STUB: not implemented"; return false }
 
-func enforceableFailure(result *test.GatorResult) bool {
-	if result.EnforcementAction == string(util.Deny) {
-		return true
-	}
-	for _, action := range result.ScopedEnforcementActions {
-		if action == string(util.Deny) {
-			return true
-		}
-	}
-	return false
-}
+func enforceableFailure(result *test.GatorResult) bool { _ = "STUB: not implemented"; return false }
